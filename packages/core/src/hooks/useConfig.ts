@@ -33,6 +33,8 @@ export interface SectionItemsConfig {
     isInKefinTweaksWatchlist?: boolean;
     /** Whether to only include unplayed items */
     isUnplayed?: boolean;
+    /** Item filters */
+    filters?: string;
 }
 
 export const MEDIABAR_SIZES = ['small', 'medium', 'large', 'xlarge'] as const;

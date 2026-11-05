@@ -10,6 +10,10 @@ import {
     Clock,
     Star,
     ImageOff,
+    Funnel,
+    EyeClosed,
+    Eye,
+    Play,
 } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -129,7 +133,7 @@ const ItemsGridPage = ({
 }: ItemsGridPageProps) => {
     const { t } = useTranslation(['item', 'library']);
     const { data: items, isLoading: loadingItems, error } = result;
-    const { page, sortBy, sortOrder, pageSize, setPage, setSortBy, setSortOrder } = state;
+    const { page, sortBy, sortOrder, filters, pageSize, setPage, setSortBy, setSortOrder, setFilters } = state;
 
     const totalPages = items?.totalCount ? Math.ceil(items.totalCount / pageSize) : 0;
     const gridCols =
@@ -159,7 +163,7 @@ const ItemsGridPage = ({
                                     {t('library:sort_premiere_date')}
                                 </SelectItem>
                                 <SelectItem value="CommunityRating">
-                                    <Star />
+                                    <Star fill="var(--color-mystar)" color="var(--color-mystar)" />
                                     {t('library:sort_community_rating')}
                                 </SelectItem>
                                 <SelectItem value="Runtime">
@@ -180,6 +184,29 @@ const ItemsGridPage = ({
                                 <SelectItem value="Descending">
                                     <ArrowDownWideNarrow />
                                     {t('library:descending')}
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <Select onValueChange={setFilters} value={filters}>
+                            <SelectTrigger size="sm">
+                                <SelectValue placeholder="Filter" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="Undefined">
+                                    <Funnel />
+                                    No filter
+                                </SelectItem>
+                                <SelectItem value="IsUnplayed">
+                                    <EyeClosed />
+                                    Unplayed
+                                </SelectItem>
+                                <SelectItem value="IsPlayed">
+                                    <Eye />
+                                    Played
+                                </SelectItem>
+                                <SelectItem value="IsResumable">
+                                    <Play />
+                                    Resumable
                                 </SelectItem>
                             </SelectContent>
                         </Select>

@@ -40,3 +40,12 @@ export function formatPlayTime(seconds: number): string {
     }
     return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
+
+export function countDownEnd(durationInSeconds: number) : string  {
+    const endTime = new Date(Date.now() + durationInSeconds * 1000);
+    return `Ends at ${endTime.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    })}`;
+}

@@ -1,10 +1,10 @@
 import type { BaseItemDto } from '@jellyfin/sdk/lib/generated-client/models';
 import BaseMediaPage from './BaseMediaPage';
-import { getPrimaryImageUrl, getLogoUrl } from '@pelagica/core';
-import { ImageOff } from 'lucide-react';
+import {
+    getLogoUrl
+} from '@pelagica/core';
 import PeopleRow from './PeopleRow';
 import { useTranslation } from 'react-i18next';
-import { Skeleton } from '@/components/ui/skeleton';
 import CollectionRows from './CollectionRows';
 import MoreLikeThisRow from './MoreLikeThisRow';
 import SeerRecommendationsRow from './SeerrRecommendationsRow';
@@ -31,8 +31,6 @@ interface MoviePageProps {
 
 const MoviePage = ({ item, config }: MoviePageProps) => {
     const { t } = useTranslation('item');
-    const [postersFailed, setPostersFailed] = useState(false);
-    const [isPosterLoaded, setIsPosterLoaded] = useState(false);
     const [failedLogo, setFailedLogo] = useState(false);
 
     const isCurrentlyPlaying =
@@ -53,44 +51,14 @@ const MoviePage = ({ item, config }: MoviePageProps) => {
         >
             <div className="pt-24 sm:pt-32 pb-12 mx-auto w-full flex flex-col gap-12">
                 <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start relative z-10 w-full">
-                    {/* Left Column (Poster) */}
-                    <div className="w-48 sm:w-64 md:w-72 lg:w-80 shrink-0 mx-auto lg:mx-0">
-                        <div className="relative aspect-2/3 w-full rounded-xl overflow-hidden shadow-2xl shadow-black/85 border border-white/10 bg-muted flex items-center justify-center">
-                            {!postersFailed ? (
-                                <>
-                                    <Skeleton className="absolute inset-0 w-full h-full rounded-xl" />
-                                    <img
-                                        src={getPrimaryImageUrl(
-                                            item.Id || '',
-                                            { width: 640, height: 960 },
-                                            item.ImageTags?.Primary
-                                        )}
-                                        alt={item.Name + ' Primary'}
-                                        className={[
-                                            'object-cover rounded-xl w-full h-full relative z-10',
-                                            'transition-[filter,opacity] duration-700 ease-out',
-                                            isPosterLoaded
-                                                ? 'blur-0 opacity-100'
-                                                : 'blur-md opacity-0',
-                                        ].join(' ')}
-                                        onLoad={() => setIsPosterLoaded(true)}
-                                        onError={() => setPostersFailed(true)}
-                                    />
-                                </>
-                            ) : (
-                                <ImageOff className="text-muted-foreground w-12 h-12" />
-                            )}
-                        </div>
-                    </div>
-
                     {/* Right Column (Details) */}
                     <div className="flex-1 flex flex-col gap-5 w-full text-left">
                         {/* Title Logo / Text */}
                         {!failedLogo && item.Id ? (
                             <img
-                                src={getLogoUrl(item.Id, { maxHeight: 150 }, item.ImageTags?.Logo)}
+                                src={getLogoUrl(item.Id, { maxHeight: 400 }, item.ImageTags?.Logo)}
                                 alt={item.Name || ''}
-                                className="h-16 sm:h-24 md:h-28 max-w-[85%] object-contain object-left mb-2"
+                                className="h-40 sm:h-48 md:h-52 max-w-[100%] object-contain object-left mb-2"
                                 onError={() => setFailedLogo(true)}
                             />
                         ) : (

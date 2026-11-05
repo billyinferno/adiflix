@@ -14,10 +14,13 @@ import type { BaseItemKind } from '@jellyfin/sdk/lib/generated-client/models';
 import {
     CircleQuestionMark,
     Clapperboard,
+    Film,
     LayoutGrid,
     Music,
     SearchIcon,
     TriangleAlert,
+    Tv,
+    User,
     XIcon,
 } from 'lucide-react';
 import { ButtonGroup } from '@/components/ui/button-group';
@@ -46,7 +49,8 @@ import { SeerrMediaStatus } from '@pelagica/core';
 
 const ITEM_TYPE_GROUPS = {
     episodes: ['Episode'] as BaseItemKind[],
-    moviesTv: ['Movie', 'Series'] as BaseItemKind[],
+    movies: ['Movie'] as BaseItemKind[],
+    tv: ['Series'] as BaseItemKind[],
     music: ['MusicAlbum'] as BaseItemKind[],
     people: ['Person'] as BaseItemKind[],
 } as const;
@@ -70,16 +74,22 @@ const LoadingSkeleton = memo(() => (
     </div>
 ));
 
-type SearchTypeFilter = 'all' | 'movies-tv' | 'music';
-const ALL_TYPE_FILTERS: SearchTypeFilter[] = ['all', 'movies-tv', 'music'];
+type SearchTypeFilter = 'all' | 'movies-tv' | 'movies' | 'tv' | 'people' | 'music';
+const ALL_TYPE_FILTERS: SearchTypeFilter[] = ['all', 'movies-tv', 'movies', 'tv', 'people', 'music'];
 const ITEM_TYPE_FILTER_MAP: Record<SearchTypeFilter, BaseItemKind[] | undefined> = {
     all: ['MusicAlbum', 'Movie', 'Series', 'Episode', 'Person'],
     'movies-tv': ['Movie', 'Series'],
+    'movies': ['Movie'],
+    'tv': ['Series'],
+    'people': ['Person'],
     music: ['MusicAlbum'],
 };
 const ITEM_TYPE_FILTER_ICONS: Record<SearchTypeFilter, JSX.Element> = {
     all: <LayoutGrid />,
     'movies-tv': <Clapperboard />,
+    movies: <Film />,
+    tv: <Tv />,
+    people: <User />,
     music: <Music />,
 };
 
@@ -108,6 +118,32 @@ const SearchPage = () => {
     const visibleSeerrResults = seerrResults?.filter(
         (item) => item.mediaInfo?.status !== SeerrMediaStatus.AVAILABLE
     );
+
+    const movieTvTitle = (type: string) => {
+        if (type === 'movies') {
+            return "Movies";
+        } else if (type === 'tv') {
+            return "TV Shows";
+        }
+        return "Other";
+    };
+
+    const filterName = (type: string) => {
+        if (type === 'all') {
+            return "All";
+        } else if (type === 'movies-tv') {
+            return "Movies & TV";
+        } else if (type === 'movies') {
+            return "Movies";
+        } else if (type === 'tv') {
+            return "TV Shows";
+        } else if (type === 'people') {
+            return "People";
+        } else if (type === 'music') {
+            return "Music";
+        }
+        return "typefilter_" + type;
+    }
 
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -155,7 +191,7 @@ const SearchPage = () => {
                         {ALL_TYPE_FILTERS.map((filter) => (
                             <SelectItem key={filter} value={filter}>
                                 {ITEM_TYPE_FILTER_ICONS[filter]}
-                                {t('typefilter_' + filter)}
+                                {filterName(filter)}
                             </SelectItem>
                         ))}
                     </SelectContent>
@@ -200,7 +236,12 @@ const SearchPage = () => {
                     if (
                         typeFilter !== 'all' &&
                         ((typeFilter === 'music' && groupKey !== 'music') ||
-                            (typeFilter === 'movies-tv' && groupKey === 'music'))
+                            (typeFilter === 'movies-tv' && groupKey === 'music') ||
+                            (typeFilter === 'movies-tv' && groupKey === 'people') ||
+                            (typeFilter === 'movies-tv' && groupKey === 'episodes') ||
+                            (typeFilter === 'movies' && groupKey !== 'movies') ||
+                            (typeFilter === 'tv' && groupKey !== 'tv') ||
+                            (typeFilter === 'people' && groupKey !== 'people'))
                     ) {
                         return null;
                     }
@@ -210,10 +251,10 @@ const SearchPage = () => {
                     );
                     if (groupResults.length === 0) return null;
 
-                    if (groupKey === 'moviesTv') {
+                    if (groupKey === 'movies' || groupKey === 'tv') {
                         return (
                             <div key={groupKey} className="mt-4 w-full">
-                                <h2 className="text-2xl font-bold mb-2">{t('group_moviesTv')}</h2>
+                                <h2 className="text-2xl font-bold mb-2">{movieTvTitle(groupKey)}</h2>
                                 <MovieTvGrid items={groupResults} />
                             </div>
                         );

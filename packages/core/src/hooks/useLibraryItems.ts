@@ -4,6 +4,7 @@ import { getLibraryApi } from '@jellyfin/sdk/lib/utils/api/library-api';
 import type {
     BaseItemDto,
     BaseItemKind,
+    ItemFilter,
     ItemSortBy,
     SortOrder,
 } from '@jellyfin/sdk/lib/generated-client/models';
@@ -17,6 +18,7 @@ export type UseLibraryItemsOptions = {
     sortOrder?: SortOrder;
     includeItemTypes?: BaseItemKind[];
     recursive?: boolean;
+    filters?: ItemFilter;
 };
 
 export interface LibraryItemsResponse {
@@ -38,6 +40,7 @@ export function useLibraryItems(
             options?.sortOrder,
             options?.includeItemTypes,
             options?.recursive,
+            options?.filters,
         ],
         queryFn: async (): Promise<LibraryItemsResponse> => {
             const api = getApi();
@@ -53,6 +56,7 @@ export function useLibraryItems(
                 locationTypes: ['FileSystem'],
                 fields: ['PrimaryImageAspectRatio'],
                 userId: getUserId() || undefined,
+                filters: options?.filters ? [options.filters] : undefined,
             });
             return {
                 items: response.data.Items || [],

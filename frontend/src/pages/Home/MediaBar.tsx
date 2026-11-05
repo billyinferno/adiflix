@@ -16,10 +16,12 @@ import { useMediaBarItems } from '@pelagica/core';
 import { getBackdropUrl, getLogoUrl } from '@pelagica/core';
 import { getEndsAt, ticksToReadableTime } from '@pelagica/core';
 import { Play, Star } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import {
+    useEffect,
+    useState
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import { MediaBarTrailerControls, MediaBarTrailerVideo } from './MediaBarTrailer';
 
 interface MediaBarProps {
     className?: string;
@@ -39,14 +41,10 @@ const MediaBar = ({
     title,
     showFavoriteButton,
     showWatchlistButton,
-    autoPlayTrailers,
     fadeTop,
 }: MediaBarProps) => {
     const { t } = useTranslation('home');
     const { data: mediabarItems, isLoading, isError } = useMediaBarItems(itemsConfig);
-    const [trailerPlaying, setTrailerPlaying] = useState(true);
-    const [trailerMuted, setTrailerMuted] = useState(true);
-    const [trailerReady, setTrailerReady] = useState<Set<string>>(new Set());
     const [logoErrors, setLogoErrors] = useState<Set<string>>(new Set());
     const [api, setApi] = useState<CarouselApi>();
     const [activeIndex, setActiveIndex] = useState(0);
@@ -63,15 +61,6 @@ const MediaBar = ({
     const handleLogoError = (itemId: string) => {
         setLogoErrors((prev) => new Set([...prev, itemId]));
     };
-
-    const handleTrailerCanPlay = useCallback((itemId: string, ready: boolean) => {
-        setTrailerReady((prev) => {
-            const next = new Set(prev);
-            if (ready) next.add(itemId);
-            else next.delete(itemId);
-            return next;
-        });
-    }, []);
 
     const outerSize =
         size === 'small'
@@ -115,16 +104,6 @@ const MediaBar = ({
                                 backgroundImage: `url('${getBackdropUrl(item.Id!, { maxWidth: 2560 }, item.ImageTags?.Backdrop)}')`,
                             }}
                         />
-                        {(item.LocalTrailerCount ?? 0) > 0 && autoPlayTrailers && (
-                            <MediaBarTrailerVideo
-                                item={item}
-                                active={i === activeIndex}
-                                playing={trailerPlaying}
-                                muted={trailerMuted}
-                                onMutedChange={setTrailerMuted}
-                                onCanPlayChange={(ready) => handleTrailerCanPlay(item.Id!, ready)}
-                            />
-                        )}
                     </div>
                 ))}
 
@@ -168,7 +147,7 @@ const MediaBar = ({
                                 <div
                                     className={`flex flex-col items-start justify-end gap-4 relative ${outerSize}`}
                                 >
-                                    <div className="flex flex-col items-start gap-4 max-w-2xl px-6 sm:px-12 py-6 relative z-10">
+                                    <div className="flex flex-col items-start gap-4 max-w-2xl px-6 sm:px-12 pt-18 pb-6 relative z-10">
                                         {getLogoUrl(item.Id!) && !logoErrors.has(item.Id!) ? (
                                             <img
                                                 src={getLogoUrl(
@@ -245,16 +224,13 @@ const MediaBar = ({
                                                 )}
                                             {item.CommunityRating && (
                                                 <div className="flex items-center gap-1">
-                                                    <Star size={14} />
+                                                    <Star fill="var(--color-mystar)" color="var(--color-mystar)" size={14} />
                                                     <span>{item.CommunityRating.toFixed(1)}</span>
                                                 </div>
                                             )}
                                         </div>
-                                        <p className="text-sm line-clamp-2 text-gray-300">
-                                            {item.Overview}
-                                        </p>
                                         <div className="flex items-center gap-2">
-                                            <Button variant="default" size="lg" asChild>
+                                            <Button variant="adiflix" size="lg" asChild>
                                                 <Link to={`/item/${item.Id}`}>
                                                     <Play />
                                                     {t('play')}
@@ -264,22 +240,12 @@ const MediaBar = ({
                                                 <FavoriteButton
                                                     item={item}
                                                     size={'icon-lg'}
-                                                    variant={'outline'}
                                                 />
                                             )}
                                             {showWatchlistButton !== false && (
                                                 <WatchListButton
                                                     item={item}
                                                     size={'icon-lg'}
-                                                    variant={'outline'}
-                                                />
-                                            )}
-                                            {trailerReady.has(item.Id!) && autoPlayTrailers && (
-                                                <MediaBarTrailerControls
-                                                    playing={trailerPlaying}
-                                                    muted={trailerMuted}
-                                                    onPlayingChange={setTrailerPlaying}
-                                                    onMutedChange={setTrailerMuted}
                                                 />
                                             )}
                                         </div>

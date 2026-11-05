@@ -1,8 +1,12 @@
 import { Button } from '@/components/ui/button';
 import { useSeasons } from '@pelagica/core';
-import { getPrimaryImageUrl, getLogoUrl } from '@pelagica/core';
+import {
+    getLogoUrl
+} from '@pelagica/core';
 import type { BaseItemDto } from '@jellyfin/sdk/lib/generated-client/models';
-import { ImageOff, Play } from 'lucide-react';
+import {
+    Play
+} from 'lucide-react';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router';
 import { buildPlayerUrl } from '@/utils/playerUrl';
@@ -15,7 +19,6 @@ import {
 } from '@/components/ui/select';
 import { useEpisodes } from '@pelagica/core';
 import { useTranslation } from 'react-i18next';
-import { Skeleton } from '@/components/ui/skeleton';
 import PeopleRow from './PeopleRow';
 import BaseMediaPage from './BaseMediaPage';
 import CollectionRows from './CollectionRows';
@@ -47,8 +50,6 @@ const SeriesPage = ({ item, config }: SeriesPageProps) => {
     const location = useLocation();
     const [selectedSeason, setSelectedSeason] = useState<string | null>(null);
     const { data: seasons, isLoading, error } = useSeasons(item.Id || '');
-    const [posterFailed, setPosterFailed] = useState(false);
-    const [isPosterLoaded, setIsPosterLoaded] = useState(false);
     const [failedLogo, setFailedLogo] = useState(false);
 
     const { data: upcomingEpisodes } = useUpcomingEpisodes(item.Id || '');
@@ -85,35 +86,6 @@ const SeriesPage = ({ item, config }: SeriesPageProps) => {
         >
             <div className="pt-24 sm:pt-32 pb-12 mx-auto w-full flex flex-col gap-12">
                 <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start relative z-10 w-full">
-                    {/* Left Column (Poster) */}
-                    <div className="w-48 sm:w-64 md:w-72 lg:w-80 shrink-0 mx-auto lg:mx-0">
-                        <div className="relative aspect-2/3 w-full rounded-xl overflow-hidden shadow-2xl shadow-black/85 border border-white/10 bg-muted flex items-center justify-center">
-                            {!posterFailed ? (
-                                <>
-                                    <Skeleton className="absolute inset-0 w-full h-full rounded-xl" />
-                                    <img
-                                        src={getPrimaryImageUrl(
-                                            item.Id || '',
-                                            { width: 640, height: 960 },
-                                            item.ImageTags?.Primary
-                                        )}
-                                        alt={item.Name + ' Primary'}
-                                        className={[
-                                            'object-cover rounded-xl w-full h-full relative z-10',
-                                            'transition-[filter,opacity] duration-700 ease-out',
-                                            isPosterLoaded
-                                                ? 'blur-0 opacity-100'
-                                                : 'blur-md opacity-0',
-                                        ].join(' ')}
-                                        onLoad={() => setIsPosterLoaded(true)}
-                                        onError={() => setPosterFailed(true)}
-                                    />
-                                </>
-                            ) : (
-                                <ImageOff className="text-muted-foreground w-12 h-12" />
-                            )}
-                        </div>
-                    </div>
 
                     {/* Right Column (Details) */}
                     <div className="flex-1 flex flex-col gap-5 w-full text-left">
@@ -122,7 +94,7 @@ const SeriesPage = ({ item, config }: SeriesPageProps) => {
                             <img
                                 src={getLogoUrl(item.Id, { maxHeight: 150 }, item.ImageTags?.Logo)}
                                 alt={item.Name || ''}
-                                className="h-16 sm:h-24 md:h-28 max-w-[85%] object-contain object-left mb-2"
+                                className="h-40 sm:h-48 md:h-52 max-w-[100%] object-contain object-left mb-2"
                                 onError={() => setFailedLogo(true)}
                             />
                         ) : (
@@ -138,7 +110,7 @@ const SeriesPage = ({ item, config }: SeriesPageProps) => {
                         <div className="flex flex-wrap gap-2.5 items-center mt-2">
                             {episodeToContinue ? (
                                 <Button
-                                    className="w-fit bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-4 py-2 shadow-lg hover:scale-105 active:scale-95 transition-transform duration-200 ease-out"
+                                    className="w-fit bg-adiflix hover:bg-adiflix/90 text-white font-semibold px-4 py-2 shadow-lg hover:scale-105 active:scale-95 transition-transform duration-200 ease-out"
                                     asChild
                                 >
                                     <Link

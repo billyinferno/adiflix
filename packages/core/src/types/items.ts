@@ -3,6 +3,7 @@ import type { BaseItemDto, ItemSortBy, SortOrder } from '@jellyfin/sdk/lib/gener
 export interface ItemsQueryParams {
     sortBy: ItemSortBy[];
     sortOrder: SortOrder[];
+    filters?: string;
     limit: number;
     startIndex: number;
 }

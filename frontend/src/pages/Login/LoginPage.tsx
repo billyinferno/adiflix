@@ -4,7 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@radix-ui/react-label';
-import { Info, Server, TriangleAlert, User } from 'lucide-react';
+import {
+    Info,
+    Server,
+    TriangleAlert,
+} from 'lucide-react';
 import {
     getJellyfinInstance,
     useLogin,
@@ -12,11 +16,11 @@ import {
     useQuickConnectStatus,
     useQuickConnectAuthenticate,
     getQuickConnectUrl,
+    withBasePath,
 } from '@pelagica/core';
 import { Spinner } from '@/components/ui/spinner';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { useConfig } from '@pelagica/core';
 import { useServerAddress } from '@pelagica/core';
 import { getServerUrl, saveServerUrl } from '@pelagica/core';
 import { useServerBranding } from '@pelagica/core';
@@ -24,7 +28,7 @@ import DOMPurify from 'dompurify';
 import QRCode from 'react-qr-code';
 
 const DEMO_SERVER_URL = 'https://jellyfin.streamyfin.app';
-const DEMO_USERNAME = 'pelagica';
+const DEMO_USERNAME = 'testing';
 
 const Disclaimer = ({ text }: { text: string | null | undefined }) => {
     if (!text) return null;
@@ -40,7 +44,6 @@ const Disclaimer = ({ text }: { text: string | null | undefined }) => {
 const LoginPage = () => {
     const isDemo = import.meta.env.VITE_IS_DEMO === 'true';
 
-    const { config } = useConfig();
     const serverAddress = useServerAddress();
     const [serverUrl, setServerUrl] = useState<string>(() =>
         isDemo ? DEMO_SERVER_URL : getServerUrl() || ''
@@ -237,15 +240,8 @@ const LoginPage = () => {
         }
     };
 
-    const onBackToServer = () => {
-        setStep('server');
-        setLoginError(null);
-        setServerCheckError(null);
-        saveServerUrl('');
-        setServerUrl('');
-    };
-
     const quickConnectUrl = quickConnectCode ? getQuickConnectUrl(quickConnectCode) : null;
+    const defaultLogo = withBasePath('/banner.png');
 
     return (
         <Page
@@ -271,11 +267,8 @@ const LoginPage = () => {
             {step === 'server' && (
                 <Card className="max-w-md w-full mx-auto -translate-y-12">
                     <CardHeader className="flex flex-col items-center">
-                        <div className="mb-1 h-12 w-12 bg-gray-200 rounded-full flex items-center justify-center">
-                            <Server size={24} className="text-gray-600" />
-                        </div>
                         <CardTitle className="text-2xl font-bold">
-                            {t('connect_to_jellyfin')}
+                            <img src={defaultLogo} alt="Logo" className="h-12" />
                         </CardTitle>
                         <CardDescription>{t('enter_server_address')}</CardDescription>
                     </CardHeader>
@@ -301,7 +294,7 @@ const LoginPage = () => {
                                     {serverCheckError}
                                 </p>
                             )}
-                            <Button className="w-full mt-4" type="submit" disabled={checkingServer}>
+                            <Button variant="adiflix" className="w-full mt-4" type="submit" disabled={checkingServer}>
                                 {checkingServer ? (
                                     <>
                                         <Spinner />
@@ -318,11 +311,8 @@ const LoginPage = () => {
             {step === 'login' && (
                 <Card className="max-w-md w-full mx-auto -translate-y-12">
                     <CardHeader className="flex flex-col items-center">
-                        <div className="mb-1 h-12 w-12 bg-gray-200 rounded-full flex items-center justify-center">
-                            <User size={24} className="text-gray-600" />
-                        </div>
                         <CardTitle className="text-2xl font-bold">
-                            {t('login_to_jellyfin')}
+                            <img src={defaultLogo} alt="Logo" className="h-12" />
                         </CardTitle>
                         <CardDescription>{t('enter_credentials')}</CardDescription>
                     </CardHeader>
@@ -360,7 +350,7 @@ const LoginPage = () => {
                                     {loginError}
                                 </p>
                             )}
-                            <Button className="mt-6 w-full" type="submit" disabled={loggingIn}>
+                            <Button variant="adiflix" className="mt-6 w-full" type="submit" disabled={loggingIn}>
                                 {loggingIn ? (
                                     <>
                                         <Spinner />
@@ -372,20 +362,11 @@ const LoginPage = () => {
                             </Button>
                             <Button
                                 className="mt-2 w-full"
-                                variant="secondary"
+                                variant="adiflixOutline"
                                 onClick={() => setStep('quickconnect')}
                             >
                                 {t('quick_connect')}
                             </Button>
-                            {!(serverAddress && config.hideBackToServerButton) && (
-                                <Button
-                                    variant="link"
-                                    className="w-full mt-2"
-                                    onClick={onBackToServer}
-                                >
-                                    {t('back_to_server')}
-                                </Button>
-                            )}
                         </form>
                         <Disclaimer text={branding?.LoginDisclaimer} />
                     </CardContent>

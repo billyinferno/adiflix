@@ -1,4 +1,4 @@
-import type { ItemSortBy, SortOrder } from '@jellyfin/sdk/lib/generated-client/models';
+import type { ItemFilter, ItemSortBy, SortOrder } from '@jellyfin/sdk/lib/generated-client/models';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import type { ItemsQueryParams, ItemsQueryResult } from '@pelagica/core';
@@ -8,6 +8,7 @@ export type { ItemsQueryParams, ItemsQueryResult };
 const ITEM_ROWS = 5;
 const DEFAULT_SORT_BY: ItemSortBy = 'Name';
 const DEFAULT_SORT_ORDER: SortOrder = 'Ascending';
+const DEFAULT_FILTERS = 'Undefined';
 
 function getColumnCount(width: number): number {
     if (width >= 1536) return 9; // 2xl
@@ -23,15 +24,18 @@ export interface ItemsGridState {
     page: number;
     sortBy: ItemSortBy;
     sortOrder: SortOrder;
+    filters?: string;
     pageSize: number;
     setPage: (page: number) => void;
     setSortBy: (sortBy: ItemSortBy) => void;
     setSortOrder: (sortOrder: SortOrder) => void;
+    setFilters: (filters: string | undefined) => void;
 }
 
 export function useItemsGridState(defaults?: {
     sortBy?: ItemSortBy;
     sortOrder?: SortOrder;
+    filters?: string;
 }): ItemsGridState {
     const [searchParams, setSearchParams] = useSearchParams();
     const pageParam = parseInt(searchParams.get('page') ?? '0', 10);
@@ -39,9 +43,11 @@ export function useItemsGridState(defaults?: {
         (searchParams.get('sortBy') as ItemSortBy) || defaults?.sortBy || DEFAULT_SORT_BY;
     const sortOrderParam =
         (searchParams.get('sortOrder') as SortOrder) || defaults?.sortOrder || DEFAULT_SORT_ORDER;
+    const filtersParam = searchParams.get('filters') || undefined;
     const [page, setPageState] = useState<number>(Number.isNaN(pageParam) ? 0 : pageParam);
     const [sortBy, setSortByState] = useState<ItemSortBy>(sortByParam);
     const [sortOrder, setSortOrderState] = useState<SortOrder>(sortOrderParam);
+    const [filters, setFiltersState] = useState<string | undefined>(filtersParam);
     const [pageSize, setPageSize] = useState(
         () => getColumnCount(typeof window !== 'undefined' ? window.innerWidth : 640) * ITEM_ROWS
     );
@@ -49,13 +55,19 @@ export function useItemsGridState(defaults?: {
     const updateSearchParams = (
         nextPage: number,
         nextSortBy = sortBy,
-        nextSortOrder = sortOrder
+        nextSortOrder = sortOrder,
+        nextFilters = filters,
     ) => {
         setSearchParams((prev) => {
             const next = new URLSearchParams(prev);
             next.set('page', String(nextPage));
             next.set('sortBy', nextSortBy);
             next.set('sortOrder', nextSortOrder);
+            if (nextFilters === undefined || nextFilters === DEFAULT_FILTERS) {
+                next.delete('filters');
+            } else {
+                next.set('filters', nextFilters);
+            }
             return next;
         });
     };
@@ -80,12 +92,14 @@ export function useItemsGridState(defaults?: {
         params: {
             sortBy: [sortBy],
             sortOrder: [sortOrder],
+            filters: (filters === DEFAULT_FILTERS ? undefined : filters as ItemFilter),
             limit: pageSize,
             startIndex: page * pageSize,
         },
         page,
         sortBy,
         sortOrder,
+        filters,
         pageSize,
         setPage: (newPage) => {
             setPageState(newPage);
@@ -94,12 +108,17 @@ export function useItemsGridState(defaults?: {
         setSortBy: (newSortBy) => {
             setSortByState(newSortBy);
             setPageState(0);
-            updateSearchParams(0, newSortBy, sortOrder);
+            updateSearchParams(0, newSortBy, sortOrder, filters);
         },
         setSortOrder: (newSortOrder) => {
             setSortOrderState(newSortOrder);
             setPageState(0);
-            updateSearchParams(0, sortBy, newSortOrder);
+            updateSearchParams(0, sortBy, newSortOrder, filters);
         },
+        setFilters: (newFilters) => {
+            setFiltersState(newFilters);
+            setPageState(0);
+            updateSearchParams(0, sortBy, sortOrder, newFilters);
+        }
     };
 }

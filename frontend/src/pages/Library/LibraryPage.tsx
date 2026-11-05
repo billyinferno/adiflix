@@ -1,4 +1,7 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+    Tabs,
+    TabsContent,
+} from '@/components/ui/tabs';
 import Page from '../Page';
 import { COLLECTION_ITEM_TYPES, DIRECT_PLAY_COLLECTION_TYPES, useUserViews } from '@pelagica/core';
 import { useMemo, useState, useEffect } from 'react';
@@ -21,10 +24,13 @@ import {
     CalendarPlus,
     CaseSensitive,
     Clock,
+    Eye,
+    EyeOff,
     FolderOpen,
+    Funnel,
+    Play,
     Star,
 } from 'lucide-react';
-import JellyfinLibraryIcon from '@/components/JellyfinLibraryIcon';
 import {
     Select,
     SelectContent,
@@ -32,7 +38,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import type { BaseItemDto, CollectionType, ItemSortBy, SortOrder } from '@jellyfin/sdk/lib/generated-client/models';
+import type {
+    BaseItemDto,
+    CollectionType,
+    ItemFilter,
+    ItemSortBy,
+    SortOrder,
+} from '@jellyfin/sdk/lib/generated-client/models';
 import { ButtonGroup } from '@/components/ui/button-group';
 import LibraryItem from './LibraryItem';
 import HomeVideoGrid, { TARGET_ROW_HEIGHT } from './HomeVideoGrid';
@@ -98,6 +110,7 @@ const LibraryContent = ({
     page,
     onPageChange,
     collectionType,
+    filters,
 }: {
     libraryId: string;
     sortBy: ItemSortBy;
@@ -105,6 +118,7 @@ const LibraryContent = ({
     page: number;
     collectionType: CollectionType;
     onPageChange: (p: number) => void;
+    filters?: ItemFilter;
 }) => {
     const { t } = useTranslation(['library', 'common']);
     const [pageSize, setPageSize] = useState(
@@ -129,6 +143,7 @@ const LibraryContent = ({
         includeItemTypes: COLLECTION_ITEM_TYPES[collectionType],
         sortBy: [sortBy],
         sortOrder,
+        filters: (filters as string) !== 'Undefined' ? filters : undefined,
     });
 
     const posterUrls = useMemo(() => {
@@ -226,6 +241,7 @@ const LibraryPage = () => {
 
     const sortBy = (searchParams.get('sortBy') as ItemSortBy) || 'DateCreated';
     const sortOrder = (searchParams.get('sortOrder') as SortOrder) || 'Descending';
+    const filters = (searchParams.get('filters') as ItemFilter) || 'Undefined';
     const page = Number(searchParams.get('page') ?? '0') || 0;
 
     const libraryIdFromUrl = searchParams.get('library') || '';
@@ -244,6 +260,11 @@ const LibraryPage = () => {
         const exists = libraryItems.some(l => l.Id === libraryIdFromUrl);
         return exists ? libraryIdFromUrl : libraryItems[0]?.Id ?? '';
     }, [libraryItems, libraryIdFromUrl]);
+
+    const currentLibraryType = () => {
+        const library = libraryItems.find((lib) => lib.Id === activeLibraryId);
+        return library?.CollectionType ?? '';
+    }
 
     const updateParams = (updates: Record<string, string>) => {
         const next = new URLSearchParams(searchParams);
@@ -274,6 +295,13 @@ const LibraryPage = () => {
         });
     };
 
+    const handleFiltersChange = (value: string) => {
+        updateParams({
+            filters: value,
+            page: '0',
+        });
+    };
+
     const handlePageChange = (p: number) => {
         updateParams({
             page: String(p),
@@ -285,16 +313,17 @@ const LibraryPage = () => {
         <Page title={t('title')} requiresAuth className="flex-1">
             <Tabs value={activeLibraryId} onValueChange={handleLibraryChange} className="w-full">
                 <div className="flex flex-col sm:items-center sm:justify-between sm:flex-row gap-2">
-                    <TabsList className="max-w-full overflow-auto hidden sm:flex">
+                    <div className="max-w-full overflow-auto hidden sm:flex">{/* just to fill the space */}</div>
+                    {/* <TabsList className="max-w-full overflow-auto hidden sm:flex">
                         {libraryItems?.map((library) => (
                             <TabsTrigger key={library.Id} value={library.Id ?? ''}>
                                 <JellyfinLibraryIcon libraryType={library.CollectionType} />
                                 {library.Name}
                             </TabsTrigger>
                         ))}
-                    </TabsList>
+                    </TabsList> */}
 
-                    <Select onValueChange={handleLibraryChange} value={activeLibraryId}>
+                    {/* <Select onValueChange={handleLibraryChange} value={activeLibraryId}>
                         <SelectTrigger size="sm" className="w-full sm:hidden">
                             <SelectValue placeholder={t('select_library')} />
                         </SelectTrigger>
@@ -306,7 +335,7 @@ const LibraryPage = () => {
                                 </SelectItem>
                             ))}
                         </SelectContent>
-                    </Select>
+                    </Select> */}
 
                     <ButtonGroup>
                         <Select onValueChange={handleSortByChange} value={sortBy}>
@@ -322,12 +351,18 @@ const LibraryPage = () => {
                                     <CalendarPlus />
                                     {t('sort_date_added')}
                                 </SelectItem>
+                                {currentLibraryType() === 'tvshows' && (
+                                    <SelectItem value="DateLastContentAdded">
+                                        <CalendarPlus />
+                                        Last Update
+                                    </SelectItem>
+                                )}
                                 <SelectItem value="PremiereDate">
                                     <Calendar />
                                     {t('sort_premiere_date')}
                                 </SelectItem>
                                 <SelectItem value="CommunityRating">
-                                    <Star />
+                                    <Star fill="var(--color-mystar)" color="var(--color-mystar)" />
                                     {t('sort_community_rating')}
                                 </SelectItem>
                                 <SelectItem value="Runtime">
@@ -352,6 +387,30 @@ const LibraryPage = () => {
                                 </SelectItem>
                             </SelectContent>
                         </Select>
+
+                        <Select onValueChange={handleFiltersChange} value={filters}>
+                            <SelectTrigger size="sm">
+                                <SelectValue placeholder="Filters" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="Undefined">
+                                    <Funnel />
+                                    None
+                                </SelectItem>
+                                <SelectItem value="IsUnPlayed">
+                                    <EyeOff />
+                                    Unplayed
+                                </SelectItem>
+                                <SelectItem value="IsPlayed">
+                                    <Eye />
+                                    Played
+                                </SelectItem>
+                                <SelectItem value="IsResumable">
+                                    <Play />
+                                    Resumable
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
                     </ButtonGroup>
                 </div>
 
@@ -368,6 +427,7 @@ const LibraryPage = () => {
                                 page={page}
                                 onPageChange={handlePageChange}
                                 collectionType={library.CollectionType as CollectionType}
+                                filters={filters}
                             />
                         </TabsContent>
                     );

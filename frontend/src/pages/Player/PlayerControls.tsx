@@ -14,6 +14,7 @@ import {
     Info,
     Minimize,
     SkipBack,
+    Star,
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Link, useNavigate, useSearchParams } from 'react-router';
@@ -33,7 +34,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { formatPlayTime, ticksToReadableTime, ticksToSeconds } from '@pelagica/core';
+import { formatPlayTime, countDownEnd, ticksToReadableTime, ticksToSeconds } from '@pelagica/core';
 import { buildPlayerUrl } from '@/utils/playerUrl';
 import { isDesktopApp } from '@/utils/desktopApp';
 import { useTranslation } from 'react-i18next';
@@ -237,8 +238,22 @@ const PlayerControls = ({
         };
 
         const handleEnded = () => {
-            if (!nextItem) return;
+            // mark item as complete regardless we have next episode or not?
             markItemAsCompleted(item.Id);
+
+            if (!nextItem) {
+                // check if this is TV shows or movie?
+                // for TV show we ill navigate to series page, for movie we will navigate to movie page
+                if (item.SeriesId && item.SeasonId && item.Type === 'Episode') {
+                    // Navigate to series page
+                    navigate(`/item/${item.SeasonId}`);
+                }
+                else if (item.Type === 'Movie') {
+                    // navigate back to the item ID
+                    navigate(`/item/${item.Id}`);
+                }
+                return;
+            }
             navigate(buildPlayerUrl(nextItem.Id!, backUrl ?? undefined));
         };
 
@@ -281,6 +296,9 @@ const PlayerControls = ({
         nextItem,
         dismissedNextItemPrompt,
         item.Id,
+        item.SeriesId,
+        item.SeasonId,
+        item.Type,
         navigate,
         markItemAsCompleted,
         backUrl,
@@ -427,7 +445,7 @@ const PlayerControls = ({
 
     const title =
         item.Type === 'Episode'
-            ? `${item.SeriesName} - S${item.ParentIndexNumber}E${item.IndexNumber} - ${item.Name}`
+            ? `${item.SeriesName} - S${String(item.ParentIndexNumber).padStart(2, '0')}E${String(item.IndexNumber).padStart(2, '0')} - ${item.Name}`
             : item.Name;
 
     const backButtonImageId = item.Type === 'Episode' ? item.SeriesId : item.Id;
@@ -449,42 +467,61 @@ const PlayerControls = ({
     return (
         <>
             <div
-                className="absolute top-0 left-0 w-full p-4 bg-linear-to-b from-black/80 to-transparent z-50 text-gray-200 text-lg flex items-center gap-2 transition-opacity duration-300"
+                className="absolute top-0 left-0 w-full p-4 bg-linear-to-b from-black/80 to-transparent z-50 text-gray-200 text-lg flex items-center justify-between transition-opacity duration-300"
                 style={{
                     opacity: showControls ? 1 : 0,
                     pointerEvents: showControls ? 'auto' : 'none',
                 }}
                 onMouseMove={handleMouseMove}
             >
-                <Button variant="ghost" onClick={handleBack}>
-                    <ArrowLeft />
-                </Button>
+                <div className="flex items-center gap-3">
+                    <Button variant="adiflixGhost" onClick={handleBack}>
+                        <ArrowLeft />
+                    </Button>
+                    {backButtonLogoFailed || (config && !config.showLogoInPlayerControls) ? (
+                        <h1>{title}</h1>
+                    ) : (
+                        <img
+                            className={cn('object-contain', {
+                                'h-16': config?.playerControlsLogoSize === 'large',
+                                'h-12': config?.playerControlsLogoSize === 'medium',
+                                'h-9':
+                                    !config?.playerControlsLogoSize ||
+                                    config?.playerControlsLogoSize === 'small',
+                            })}
+                            src={getLogoUrl(
+                                backButtonImageId!,
+                                {
+                                    maxHeight:
+                                        config?.playerControlsLogoSize === 'large'
+                                            ? 160
+                                            : config?.playerControlsLogoSize === 'medium'
+                                            ? 120
+                                            : 90,
+                                },
+                                backButtonImageTag
+                            )}
+                            onError={() => setBackButtonLogoFailed(true)}
+                        />
+                    )}
+                </div>
+                <div className="text-right truncate max-w-[50%] text-sm sm:text-base md:text-lg lg:text-xl">
                 {backButtonLogoFailed || (config && !config.showLogoInPlayerControls) ? (
-                    <h1>{title}</h1>
+                    <h1></h1>
                 ) : (
-                    <img
-                        className={cn('object-contain', {
-                            'h-16': config?.playerControlsLogoSize === 'large',
-                            'h-12': config?.playerControlsLogoSize === 'medium',
-                            'h-9':
-                                !config?.playerControlsLogoSize ||
-                                config?.playerControlsLogoSize === 'small',
+                    <div className="flex flex-col items-end leading-tight">
+                    <span className="text-xs sm:text-sm text-gray-400 font-medium">
+                        {t('seasonEpisode', {
+                        season: String(item.ParentIndexNumber).padStart(2, '0'),
+                        episode: String(item.IndexNumber).padStart(2, '0'),
                         })}
-                        src={getLogoUrl(
-                            backButtonImageId!,
-                            {
-                                maxHeight:
-                                    config?.playerControlsLogoSize === 'large'
-                                        ? 160
-                                        : config?.playerControlsLogoSize === 'medium'
-                                          ? 120
-                                          : 90,
-                            },
-                            backButtonImageTag
-                        )}
-                        onError={() => setBackButtonLogoFailed(true)}
-                    />
+                    </span>
+                    <h1 className="truncate w-full text-right font-semibold">
+                        {item.Name}
+                    </h1>
+                    </div>
                 )}
+                </div>
             </div>
             <div
                 className={`absolute inset-0 z-10 p-4 ${showControls ? '' : 'cursor-none'}`}
@@ -495,7 +532,7 @@ const PlayerControls = ({
             <div className="absolute bottom-28 right-8 z-30 flex gap-2">
                 {showSkipIntroButton && !showNextItemPrompt && (
                     <Button
-                        variant={'default'}
+                        variant={'adiflix'}
                         onClick={() => handleSkipSegment('Intro')}
                         className="cursor-pointer"
                         title={t('skipIntro')}
@@ -506,7 +543,7 @@ const PlayerControls = ({
                 )}
                 {showSkipOutroButton && !showNextItemPrompt && (
                     <Button
-                        variant={'default'}
+                        variant={'adiflix'}
                         onClick={() => handleSkipSegment('Outro')}
                         className="cursor-pointer"
                         title={t('skipOutro')}
@@ -518,7 +555,7 @@ const PlayerControls = ({
                 {showNextItemPrompt && (
                     <Card className="gap-2 w-60 md:w-80">
                         <CardHeader>
-                            <CardTitle className="text-xl sm:text-2xl">
+                            <CardTitle className="text-sm sm:text-xl">
                                 {t('upNext', {
                                     seconds: timeRemaining.toFixed(0),
                                 })}
@@ -545,11 +582,11 @@ const PlayerControls = ({
                             <div className="flex items-center text-muted-foreground text-xs mb-3">
                                 <p>{ticksToReadableTime(nextItem.RunTimeTicks || 0)}</p>
                                 <Dot />
-                                <p>Ends at {formatPlayTime(duration)}</p>
+                                <p>{countDownEnd(timeRemaining)}</p>
                             </div>
                             <div className="flex items-center gap-2 w-full">
                                 <Button
-                                    variant={'default'}
+                                    variant={'adiflixOther'}
                                     className="flex-1"
                                     onClick={() => {
                                         if (!player || !nextItem) return;
@@ -795,7 +832,7 @@ const PlayerControls = ({
                     <div className="flex items-center gap-2">
                         {previousItem && (
                             <Button
-                                variant={'ghost'}
+                                variant={'adiflixGhost'}
                                 size={'icon-lg'}
                                 className="cursor-pointer"
                                 title={t('previousItem')}
@@ -807,7 +844,7 @@ const PlayerControls = ({
                             </Button>
                         )}
                         <Button
-                            variant={'ghost'}
+                            variant={'adiflixGhost'}
                             size={'icon-lg'}
                             onClick={togglePlay}
                             className="cursor-pointer"
@@ -816,7 +853,7 @@ const PlayerControls = ({
                         </Button>
                         {nextItem && (
                             <Button
-                                variant={'ghost'}
+                                variant={'adiflixGhost'}
                                 size={'icon-lg'}
                                 className="cursor-pointer"
                                 title={t('nextItem')}
@@ -837,11 +874,20 @@ const PlayerControls = ({
                                 {formatPlayTime(clampedCurrentTime)} / {formatPlayTime(duration)}
                             </div>
                         )}
+                        <div className="text-sm ml-2">
+                            {countDownEnd(timeRemaining)}
+                        </div>
+                        {item.CommunityRating && (
+                            <div className="flex items-center gap-1">
+                                <Star fill="var(--color-mystar)" color="var(--color-mystar)" size={14} />
+                                {item.CommunityRating?.toFixed(1)}
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex items-center gap-2">
                         <Button
-                            variant={'ghost'}
+                            variant={'adiflixGhost'}
                             size={'icon-lg'}
                             onClick={() => setShowStats(!showStats)}
                             className="cursor-pointer"
@@ -853,7 +899,7 @@ const PlayerControls = ({
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button
-                                        variant={'ghost'}
+                                        variant={'adiflixGhost'}
                                         size={'icon-lg'}
                                         className="cursor-pointer"
                                     >
@@ -888,7 +934,7 @@ const PlayerControls = ({
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button
-                                        variant={'ghost'}
+                                        variant={'adiflixGhost'}
                                         size={'icon-lg'}
                                         className="cursor-pointer"
                                     >
@@ -916,7 +962,7 @@ const PlayerControls = ({
                             </DropdownMenu>
                         )}
                         <Button
-                            variant={'ghost'}
+                            variant={'adiflixGhost'}
                             size={'icon-lg'}
                             onClick={toggleMute}
                             className="cursor-pointer"
@@ -933,7 +979,7 @@ const PlayerControls = ({
                         />
                         {document.pictureInPictureEnabled && !isDesktopApp() && (
                             <Button
-                                variant={'ghost'}
+                                variant={'adiflixGhost'}
                                 size={'icon-lg'}
                                 onClick={togglePiP}
                                 className="cursor-pointer"
@@ -946,7 +992,7 @@ const PlayerControls = ({
                             </Button>
                         )}
                         <Button
-                            variant={'ghost'}
+                            variant={'adiflixGhost'}
                             size={'icon-lg'}
                             onClick={toggleFullscreen}
                             className="cursor-pointer"

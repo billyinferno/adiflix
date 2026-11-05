@@ -1,5 +1,5 @@
 import { getApi } from '../../api/getApi';
-import type { BaseItemDto, ItemSortBy, SortOrder } from '@jellyfin/sdk/lib/generated-client/models';
+import type { BaseItemDto, ItemFilter, ItemSortBy, SortOrder } from '@jellyfin/sdk/lib/generated-client/models';
 import { getLibraryApi } from '@jellyfin/sdk/lib/utils/api/library-api';
 import { useQuery } from '@tanstack/react-query';
 
@@ -8,6 +8,7 @@ interface GenreItemsOptions {
     sortOrder?: SortOrder[];
     limit?: number;
     startIndex?: number;
+    filters?: string;
 }
 
 interface GenreItemsResponse {
@@ -31,6 +32,7 @@ export function useGenreItems(genreId: string, options?: GenreItemsOptions) {
                 sortOrder: options?.sortOrder ?? ['Descending'],
                 limit: options?.limit ?? 50,
                 startIndex: options?.startIndex ?? 0,
+                filters: options?.filters ? [options.filters as ItemFilter] : undefined,
             });
 
             return {
