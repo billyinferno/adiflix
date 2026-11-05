@@ -69,7 +69,7 @@ const LibraryItem = ({
                         {isDirectPlay && (
                             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
                                 <div
-                                    className="bg-black/60 rounded-full p-4 cursor-pointer hover:bg-black/75"
+                                    className="bg-adiflix/60 rounded-full p-4 cursor-pointer hover:bg-adiflix/75"
                                     role="button"
                                     onClick={(e) => {
                                         e.preventDefault();

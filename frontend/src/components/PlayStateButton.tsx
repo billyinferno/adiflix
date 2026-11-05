@@ -10,10 +10,10 @@ interface PlayStateButtonProps {
     userId: string;
     size?: 'default' | 'sm' | 'lg' | 'icon' | 'icon-sm' | 'icon-lg' | null | undefined;
     variant?:
-        'default' | 'link' | 'destructive' | 'outline' | 'secondary' | 'ghost' | null | undefined;
+        'default' | 'link' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'mywatch' | null | undefined;
 }
 
-const PlayStateButton = ({ itemId, userId, size, variant }: PlayStateButtonProps) => {
+const PlayStateButton = ({ itemId, userId, size }: PlayStateButtonProps) => {
     const { t } = useTranslation('item');
     const { data: playState } = useItemPlayState(itemId, userId);
     const markItemPlayed = useMarkItemPlayed();
@@ -29,7 +29,7 @@ const PlayStateButton = ({ itemId, userId, size, variant }: PlayStateButtonProps
 
     return (
         <Button
-            variant={variant || 'outline'}
+            variant={playState?.played ? 'mywatch' : 'outline'}
             size={size || 'icon'}
             onClick={togglePlayState}
             title={playState?.played ? t('mark_as_unplayed') : t('mark_as_played')}

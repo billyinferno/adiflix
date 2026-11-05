@@ -48,7 +48,7 @@ function getDetailFieldsStringForItem(
         case 'CommunityRating':
             return item.CommunityRating ? (
                 <div className="flex items-center gap-1">
-                    <Star size={14} />
+                    <Star fill="var(--color-mystar)" color="var(--color-mystar)" size={14} />
                     {item.CommunityRating.toFixed(1)}
                 </div>
             ) : (

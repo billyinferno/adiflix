@@ -31,7 +31,19 @@ export function EpisodeCard({ item, titleLine, detailLine, useSeriesImage }: Epi
 
     const watched = item.UserData?.PlaybackPositionTicks ?? 0;
     const runtime = item.RunTimeTicks ?? 0;
+    const playState = item.UserData?.Played ?? false;
     const progress = runtime > 0 ? (watched / runtime) * 100 : 0;
+    const progressVariant = () => {
+        if (playState) {
+            if (watched === 0) {
+                return 'bg-mywatch';
+            } else {
+                return 'bg-adiflix';
+            }
+        } else {
+            return 'bg-adiflix';
+        }
+    };
 
     const playLink = buildPlayerUrl(item.Id!, location.pathname + location.search);
 
@@ -55,13 +67,13 @@ export function EpisodeCard({ item, titleLine, detailLine, useSeriesImage }: Epi
                         <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-700">
                             <div
                                 style={{ width: `${progress}%` }}
-                                className="h-full bg-brand transition-width"
+                                className={`h-full ${progressVariant()} transition-width`}
                             />
                         </div>
                     )}
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                         <div
-                            className="bg-black/60 rounded-full p-4 cursor-pointer hover:bg-black/75"
+                            className="bg-adiflix rounded-full p-4 cursor-pointer hover:bg-adiflix/75"
                             role="button"
                             onClick={(e) => {
                                 e.preventDefault();

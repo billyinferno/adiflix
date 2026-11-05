@@ -124,7 +124,7 @@ const RecommendedItemsRow = ({
                                       <div>
                                           {item.item.communityRating && (
                                               <span className="text-xs text-muted-foreground mr-3 flex items-center gap-1">
-                                                  <Star size={14} />
+                                                  <Star fill="var(--color-mystar)" color="var(--color-mystar)" size={14} />
                                                   {item.item.communityRating.toFixed(1)}
                                               </span>
                                           )}

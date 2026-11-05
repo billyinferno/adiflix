@@ -277,7 +277,7 @@ const IdentifyItemButton = ({ item, trigger }: { item: BaseItemDto; trigger: Rea
                             <Button variant={'outline'} onClick={() => setIsOpen(false)}>
                                 {t('cancel')}
                             </Button>
-                            <Button onClick={handleSearch} disabled={!canSearch}>
+                            <Button variant={'adiflixOther'} onClick={handleSearch} disabled={!canSearch}>
                                 <Search />
                                 {t('search')}
                             </Button>
@@ -293,7 +293,7 @@ const IdentifyItemButton = ({ item, trigger }: { item: BaseItemDto; trigger: Rea
                             <Button variant={'outline'} onClick={() => setStep('results')}>
                                 {t('previous')}
                             </Button>
-                            <Button onClick={handleApply} disabled={isApplying}>
+                            <Button variant={'adiflixOther'} onClick={handleApply} disabled={isApplying}>
                                 {isApplying ? <Spinner /> : <Check />}
                                 {isApplying ? t('saving') : t('identify_apply')}
                             </Button>

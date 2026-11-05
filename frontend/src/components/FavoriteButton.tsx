@@ -9,14 +9,13 @@ interface FavoriteButtonProps {
     showFavoriteButton?: boolean | undefined;
     size?: 'default' | 'sm' | 'lg' | 'icon' | 'icon-sm' | 'icon-lg' | null | undefined;
     variant?:
-        'default' | 'link' | 'destructive' | 'outline' | 'secondary' | 'ghost' | null | undefined;
+        'default' | 'link' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'myfav' | null | undefined;
 }
 
 const FavoriteButton = ({
     item,
     showFavoriteButton,
     size = 'icon',
-    variant = 'outline',
 }: FavoriteButtonProps) => {
     const { t } = useTranslation('item');
     const { isFavorite, toggleFavorite, isLoading: isFavoriteLoading } = useFavorite(item.Id);
@@ -25,7 +24,7 @@ const FavoriteButton = ({
 
     return (
         <Button
-            variant={variant}
+            variant={isFavorite ? 'myfav' : 'outline'}
             size={size}
             onClick={() => toggleFavorite(!isFavorite)}
             disabled={isFavoriteLoading}

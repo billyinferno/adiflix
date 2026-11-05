@@ -43,7 +43,7 @@ const HomePage = () => {
 
     return (
         <Page
-            title={config?.serverName || 'Pelagica'}
+            title={config?.serverName || 'Adiflix'}
             requiresAuth={true}
             overlayHeader={firstSectionIsMediaBar}
             pagePadding={false}
@@ -124,7 +124,6 @@ const HomePage = () => {
                                     title={index != 0 ? section.title : undefined}
                                     showFavoriteButton={section.showFavoriteButton}
                                     showWatchlistButton={section.showWatchlistButton}
-                                    autoPlayTrailers={section.autoPlayTrailers}
                                     fadeTop={index != 0}
                                 />
                             );

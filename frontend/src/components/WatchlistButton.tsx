@@ -9,14 +9,13 @@ interface WatchlistButtonProps {
     showWatchlistButton?: boolean | undefined;
     size?: 'default' | 'sm' | 'lg' | 'icon' | 'icon-sm' | 'icon-lg' | null | undefined;
     variant?:
-        'default' | 'link' | 'destructive' | 'outline' | 'secondary' | 'ghost' | null | undefined;
+        'default' | 'link' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'mysave' | null | undefined;
 }
 
 const WatchListButton = ({
     item,
     showWatchlistButton,
     size = 'icon',
-    variant = 'outline',
 }: WatchlistButtonProps) => {
     const { t } = useTranslation('item');
     const { isLiked, toggleLike, isLoading } = useLike(item.Id);
@@ -25,7 +24,7 @@ const WatchListButton = ({
 
     return (
         <Button
-            variant={variant}
+            variant={isLiked ? 'mysave' : 'outline'}
             size={size}
             onClick={() => toggleLike(!isLiked)}
             disabled={isLoading}

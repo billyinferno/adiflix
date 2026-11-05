@@ -42,7 +42,7 @@ const SourcePickerButton = ({
 
     return (
         <ButtonGroup className="relative inline-flex">
-            <Button className={hasMultipleSources ? 'rounded-r-none w-min' : 'w-min'} asChild>
+            <Button className={hasMultipleSources ? 'rounded-r-none w-min bg-adiflix hover:bg-adiflix/75 text-white' : 'w-min bg-adiflix hover:bg-adiflix/75 text-white'} asChild>
                 <Link
                     to={buildPlayerUrl(
                         selectedSource?.Id ?? itemId,
@@ -59,7 +59,7 @@ const SourcePickerButton = ({
                     <ButtonGroupSeparator />
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button className="rounded-l-none px-2" aria-label={playLabel}>
+                            <Button className="rounded-l-none px-2 bg-adiflix hover:bg-adiflix/75 text-white" aria-label={playLabel}>
                                 <ChevronDown className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>

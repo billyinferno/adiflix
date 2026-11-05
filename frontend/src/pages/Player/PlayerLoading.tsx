@@ -7,7 +7,7 @@ const PlayerLoading = () => {
     return (
         <div className="relative w-full h-dvh bg-black flex items-center justify-center overflow-hidden">
             <div className="relative z-10 flex flex-col items-center gap-4 px-4 text-center">
-                <Loader2 className="h-8 w-8 animate-spin text-secondary-foreground" />
+                <Loader2 className="h-8 w-8 animate-spin text-adiflix" />
                 <div className="flex flex-col gap-1">
                     <p className="text-sm text-secondary-foreground">{t('loading')}</p>
                 </div>

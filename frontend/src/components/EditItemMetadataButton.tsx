@@ -707,7 +707,7 @@ const EditItemMetadataButton = ({
                     <Button variant={'outline'} onClick={() => setIsEditDialogOpen(false)}>
                         {t('cancel')}
                     </Button>
-                    <Button onClick={handleSave} disabled={!item.Id || isSaving}>
+                    <Button variant={'adiflixOther'} onClick={handleSave} disabled={!item.Id || isSaving}>
                         {isSaving ? t('saving') : t('save')}
                     </Button>
                 </DialogFooter>

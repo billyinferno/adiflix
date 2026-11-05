@@ -19,6 +19,15 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
+        adiflix: "bg-adiflix text-white hover:bg-adiflix/90 rounded-full",
+        adiflixOutline:
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-full",
+        adiflixOther: "bg-adiflix text-white hover:bg-adiflix/90",
+        adiflixGhost:
+          "hover:bg-adiflix hover:text-white",
+        myfav: "bg-myfav text-white hover:bg-myfav/90 focus-visible:bg-myfav/50",
+        mysave: "bg-mysave text-white hover:bg-mysave/90 focus-visible:bg-mysave/50",
+        mywatch: "bg-mywatch text-white hover:bg-mywatch/90 focus-visible:bg-mywatch/50",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",

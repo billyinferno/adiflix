@@ -36,6 +36,18 @@ const EpisodeComponent = memo(
                 : runtime > 0
                   ? (watched / runtime) * 100
                   : 0;
+        const playState = episode.UserData?.Played ? true : false;
+        const progressVariant = () => {
+            if (playState) {
+                if (watched === 0) {
+                    return 'bg-mywatch';
+                } else {
+                    return 'bg-adiflix';
+                }
+            } else {
+                return 'bg-adiflix';
+            }
+        };
 
         return (
             <GeneralItemContextMenu item={episode} playLink={buildPlayerUrl(episode.Id!, backUrl)}>
@@ -71,7 +83,7 @@ const EpisodeComponent = memo(
                                 />
                                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                     <div
-                                        className="bg-black/60 rounded-full p-4 cursor-pointer hover:bg-black/75"
+                                        className="bg-adiflix rounded-full p-4 cursor-pointer hover:bg-adiflix/75"
                                         role="button"
                                         onClick={(e) => {
                                             e.preventDefault();
@@ -93,7 +105,7 @@ const EpisodeComponent = memo(
                             <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-700">
                                 <div
                                     style={{ width: `${progress}%` }}
-                                    className="h-full bg-brand transition-width"
+                                    className={`h-full ${progressVariant()} transition-width`}
                                 />
                             </div>
                         )}
@@ -112,7 +124,7 @@ const EpisodeComponent = memo(
                         )}
                         {episode.CommunityRating !== undefined && (
                             <Badge variant={'outline'}>
-                                <Star size={14} />
+                                <Star fill="var(--color-mystar)" color="var(--color-mystar)" size={14} />
                                 {episode.CommunityRating?.toFixed(1)}
                             </Badge>
                         )}

@@ -50,7 +50,19 @@ const EpisodePage = ({ item, config }: EpisodePageProps) => {
 
     const watched = item.UserData?.PlaybackPositionTicks ?? 0;
     const runtime = item.RunTimeTicks ?? 0;
+    const playState = item.UserData?.Played ?? false;
     const progress = runtime > 0 ? (watched / runtime) * 100 : 0;
+    const progressVariant = () => {
+        if (playState) {
+            if (watched === 0) {
+                return 'bg-mywatch';
+            } else {
+                return 'bg-adiflix';
+            }
+        } else {
+            return 'bg-adiflix';
+        }
+    };
     const isCurrentlyPlaying = watched > 0 && runtime > 0 && watched < runtime;
 
     return (
@@ -102,7 +114,7 @@ const EpisodePage = ({ item, config }: EpisodePageProps) => {
                                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-700 z-20">
                                     <div
                                         style={{ width: `${progress}%` }}
-                                        className="h-full bg-brand transition-width"
+                                        className={`h-full ${progressVariant()} transition-width`}
                                     />
                                 </div>
                             )}
