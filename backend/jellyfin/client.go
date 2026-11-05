@@ -28,8 +28,8 @@ func AuthenticateByToken(c fiber.Ctx) (bool, error) {
 		return false, errors.New("invalid jellyfin_url")
 	}
 
-	endpoint, _ := url.Parse("/Users/Me")
-	fullURL := baseURL.ResolveReference(endpoint)
+	// use join path for full url, in case we want to use reverse proxy for jellyfin backend, so we don't have to worry about trailing slashes
+	fullURL := baseURL.JoinPath("Users/Me")
 
 	token := c.Get("Authorization")
 	if token == "" {

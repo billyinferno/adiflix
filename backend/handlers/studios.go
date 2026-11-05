@@ -238,8 +238,8 @@ func listStudiosFromJellyfin(jellyfinURL, token string) ([]models.StudioSummary,
 	client := &http.Client{Timeout: jellyfinItemsRequestLimit}
 
 	for {
-		endpoint, _ := url.Parse("/Users/" + url.PathEscape(userID) + "/Items")
-		fullURL := baseURL.ResolveReference(endpoint)
+		// use join path for full url, in case we want to use reverse proxy for jellyfin backend, so we don't have to worry about trailing slashes
+		fullURL := baseURL.JoinPath("Users/" + url.PathEscape(userID) + "/Items")
 
 		q := fullURL.Query()
 		q.Set("Recursive", "true")
@@ -323,8 +323,8 @@ func listStudiosFromJellyfin(jellyfinURL, token string) ([]models.StudioSummary,
 }
 
 func fetchJellyfinUserID(baseURL *url.URL, token string) (string, error) {
-	endpoint, _ := url.Parse("/Users/Me")
-	fullURL := baseURL.ResolveReference(endpoint)
+	// use join path for full url, in case we want to use reverse proxy for jellyfin backend, so we don't have to worry about trailing slashes
+	fullURL := baseURL.JoinPath("Users/Me")
 
 	req, err := http.NewRequest(http.MethodGet, fullURL.String(), nil)
 	if err != nil {
