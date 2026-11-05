@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, type CSSProperties } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router';
 import {
     ChartLine,
     Check,
@@ -7,6 +7,7 @@ import {
     ChevronLeft,
     ChevronRight,
     ChevronsUpDown,
+    Cog,
     Copy,
     DotIcon,
     ExternalLink,
@@ -15,12 +16,10 @@ import {
     House,
     ImageIcon,
     Laptop,
-    Library,
     LogIn,
     LogOut,
     Minus,
     Moon,
-    Music,
     Search,
     Settings,
     Settings2,
@@ -28,7 +27,6 @@ import {
     Sun,
     Telescope,
     TriangleAlert,
-    Tv,
     X,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -62,15 +60,6 @@ import {
     CommandItem,
     CommandList,
 } from '@/components/ui/command';
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useCurrentUser } from '@pelagica/core';
 import { useUserViews } from '@pelagica/core';
@@ -89,17 +78,10 @@ import { useAuthorizeQuickConnect } from '@pelagica/core';
 import { useSeerrLoginStatus } from '@pelagica/core';
 import { useSeerrLogout } from '@pelagica/core';
 import { SeerrLoginDialog } from '@/components/SeerrLoginDialog';
+import { ProfileDialog } from '@/components/ProfileDialog';
 import { toast } from 'sonner';
 import { iso6392 } from 'iso-639-2';
 import { cn } from '@/lib/utils';
-import {
-    clearLocalTheme,
-    getLocalTheme,
-    LOCAL_THEME_PELAGICA_DEFAULT,
-    LOCAL_THEME_SERVER_DEFAULT,
-    saveLocalTheme,
-} from '@/utils/localTheme';
-import { useThemes } from '@pelagica/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { SUPPORTED_LANGUAGES } from '@pelagica/core/i18n';
 import {
@@ -116,6 +98,7 @@ import {
     openExternalUrl,
 } from '../utils/desktopApp';
 import { ExternalAnchor } from './ExternalAnchor';
+import JellyfinLibraryIcon from '@/components/JellyfinLibraryIcon';
 
 const noDragStyle = { '--wails-draggable': 'no-drag' } as CSSProperties;
 
@@ -315,15 +298,12 @@ const UserMenu = () => {
     const [quickConnectLoading, setQuickConnectLoading] = useState(false);
     const [quickConnectSuccess, setQuickConnectSuccess] = useState(false);
     const [quickConnectError, setQuickConnectError] = useState(false);
-    const [localTheme, setLocalTheme] = useState<string | null>(
-        getLocalTheme() ?? LOCAL_THEME_SERVER_DEFAULT
-    );
-    const { data: themes, isLoading: isLoadingThemes } = useThemes();
     const { config } = useConfig();
     const { data: isSeerrLoggedIn } = useSeerrLoginStatus();
     const seerrLogout = useSeerrLogout();
     const [appIconOptions, setAppIconOptions] = useState<string[]>([]);
     const [selectedAppIcon, setSelectedAppIcon] = useState<string | null>(null);
+    const [profileOpen, setProfileOpen] = useState(false);
 
     useEffect(() => {
         if (!isDesktopApp()) return;
@@ -371,10 +351,10 @@ const UserMenu = () => {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="flex items-center gap-2 px-2">
-                    <Avatar className="h-6 w-6 rounded-lg">
+                <Button variant="ghost" size="sm" className="flex items-center gap-2 px-2 rounded-full">
+                    <Avatar className="h-6 w-6 rounded-full">
                         <AvatarImage src={profileImageUrl} alt={userName} />
-                        <AvatarFallback className="rounded-lg text-xs">{initials}</AvatarFallback>
+                        <AvatarFallback className="rounded-full text-xs">{initials}</AvatarFallback>
                     </Avatar>
                     <span className="hidden sm:block text-sm font-medium max-w-32 truncate">
                         {userName}
@@ -386,15 +366,26 @@ const UserMenu = () => {
             <DropdownMenuContent align="end" className="w-56 rounded-lg">
                 <DropdownMenuLabel className="p-0 font-normal">
                     <div className="flex items-center gap-2 px-1 py-1.5">
-                        <Avatar className="h-8 w-8 rounded-lg">
+                        <Avatar className="h-8 w-8 rounded-full">
                             <AvatarImage src={profileImageUrl} alt={userName} />
-                            <AvatarFallback className="rounded-lg text-xs">
+                            <AvatarFallback className="rounded-full text-xs">
                                 {initials}
                             </AvatarFallback>
                         </Avatar>
                         <span className="truncate text-sm font-medium">{userName}</span>
                     </div>
                 </DropdownMenuLabel>
+
+                <DropdownMenuSeparator />
+
+                {/* Profile */}
+                <DropdownMenuItem onSelect={(e) => {
+                        e.preventDefault(); // Prevents focus conflict during menu close
+                        setTimeout(() => setProfileOpen(true), 0);
+                    }}>
+                    <Cog className="text-muted-foreground" />
+                    <span>{'Profile'}</span>
+                </DropdownMenuItem>
 
                 <DropdownMenuSeparator />
 
@@ -482,6 +473,17 @@ const UserMenu = () => {
                     </DropdownMenuSub>
                 )}
 
+                {/* Profile Dialog */}
+                <ProfileDialog
+                    open={profileOpen}
+                    onOpenChange={setProfileOpen}
+                    currentUser={{
+                        userId: user.Id,
+                        name: userName,
+                        avatarUrl: profileImageUrl,
+                    }}
+                />
+
                 {/* Preferences */}
                 <Dialog>
                     <DialogTrigger asChild>
@@ -527,43 +529,6 @@ const UserMenu = () => {
                                 open={subtitleLanguageOpen}
                                 onOpenChange={setSubtitleLanguageOpen}
                             />
-                        </div>
-                        <div>
-                            <Label className="mb-2 text-sm font-medium">
-                                {t('theme_preference')}
-                            </Label>
-                            <Select
-                                value={localTheme || undefined}
-                                onValueChange={(val) => {
-                                    if (val === LOCAL_THEME_SERVER_DEFAULT) clearLocalTheme();
-                                    else saveLocalTheme(val);
-                                    setLocalTheme(val);
-                                }}
-                            >
-                                <SelectTrigger className="w-full">
-                                    <SelectValue placeholder={t('select_theme')} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                        <SelectItem value={LOCAL_THEME_SERVER_DEFAULT}>
-                                            {t('server_default')}
-                                        </SelectItem>
-                                        <SelectItem value={LOCAL_THEME_PELAGICA_DEFAULT}>
-                                            {t('pelagica_default')}
-                                        </SelectItem>
-                                    </SelectGroup>
-                                    {!isLoadingThemes && themes && (
-                                        <SelectGroup>
-                                            <SelectLabel>Custom Themes</SelectLabel>
-                                            {themes.map((th) => (
-                                                <SelectItem key={th.id} value={th.id}>
-                                                    {th.name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectGroup>
-                                    )}
-                                </SelectContent>
-                            </Select>
                         </div>
                     </DialogContent>
                 </Dialog>
@@ -682,6 +647,22 @@ const TopBar = ({ overlay = false }: { overlay?: boolean }) => {
     const isWindowsOrLinux = isDesktop && !isMacOS();
     const [isMaximised, setIsMaximised] = useState(false);
 
+    // get current location and search params to identify which navigation
+    // is currently active?
+    const location = useLocation();
+    const [searchParams] = useSearchParams();
+
+    const currentPath = location.pathname;
+    const activeLibraryId = searchParams.get('library');
+
+    // Helper function to determine button variant or styling
+    const getButtonVariant = (path: string, libraryId?: string) => {
+        if (libraryId) {
+            return currentPath === path && activeLibraryId === libraryId ? 'adiflix' : 'ghost';
+        }
+        return currentPath === path ? 'adiflix' : 'ghost';
+    };
+
     useEffect(() => {
         const handleScroll = () => {
             setScrolled(window.scrollY > 20);
@@ -702,16 +683,16 @@ const TopBar = ({ overlay = false }: { overlay?: boolean }) => {
 
     const defaultLogo = withBasePath(effectiveTheme === 'dark' ? '/logo.svg' : '/logo-dark.svg');
     const configuredLogo =
-        effectiveTheme === 'dark' ? config?.logoDarkUrl || '' : config?.logoLightUrl || '';
+    effectiveTheme === 'dark' ? config?.logoDarkUrl || '' : config?.logoLightUrl || '';
     const logoSrc = configuredLogo || defaultLogo;
+    const fullLogoSrc = withBasePath('/logo-full.png');
 
     const libraries =
         views?.Items?.filter((lib) =>
-            SUPPORTED_LIBRARY_COLLECTION_TYPES.includes(lib.CollectionType!)
+            SUPPORTED_LIBRARY_COLLECTION_TYPES.includes(lib.CollectionType!) &&
+            lib.CollectionType !== 'music' &&
+            lib.CollectionType !== 'livetv'
         ) ?? [];
-
-    const hasMusicLibrary = libraries.some((lib) => lib.CollectionType === 'music');
-    const hasLiveTvLibrary = views?.Items?.some((lib) => lib.CollectionType === 'livetv') ?? false;
 
     const validLinks = config?.links?.filter((l) => l.url && l.text) ?? [];
 
@@ -820,6 +801,38 @@ const TopBar = ({ overlay = false }: { overlay?: boolean }) => {
                 </div>
             )}
 
+            {(!isDesktop && currentPath !== '/') && (
+                <div
+                    className={cn(
+                        'pointer-events-auto absolute top-1/2 -translate-y-1/2 flex h-11 items-center px-1 w-full md:w-auto rounded-full transition-all duration-300 border',
+                        'justify-between md:justify-start gap-0.5',
+                        'left-6 sm:left-12',
+                        !overlay || scrolled
+                            ? 'border-border bg-background/60 backdrop-blur shadow-sm'
+                            : 'border-white/10 bg-background/20 backdrop-blur-md',
+                        'hidden md:flex'
+                    )}
+                    style={noDragStyle}
+                >
+                    <Button
+                        size="icon-sm"
+                        variant="ghost"
+                        onClick={goback}
+                        className="h-9 w-9 rounded-l-full"
+                    >
+                        <ChevronLeft />
+                    </Button>
+                    <Button
+                        size="icon-sm"
+                        variant="ghost"
+                        onClick={goforward}
+                        className="h-9 w-9 rounded-r-full"
+                    >
+                        <ChevronRight />
+                    </Button>
+                </div>
+            )}
+
             <div
                 className={cn(
                     'pointer-events-auto relative flex h-11 items-center px-2 sm:px-4 mx-3 w-full md:w-auto rounded-full transition-all duration-300 border',
@@ -831,51 +844,57 @@ const TopBar = ({ overlay = false }: { overlay?: boolean }) => {
                 style={noDragStyle}
             >
                 <div className="flex items-center gap-1 md:gap-2">
+                    {/* Back button  */}
+                    {currentPath !== '/' && (
+                        <Button
+                            size="icon-sm"
+                            variant="ghost"
+                            onClick={goback}
+                            className="md:hidden h-9 w-9 rounded-full"
+                        >
+                            <ChevronLeft />
+                        </Button>
+                    )}
+
                     {/* Logo */}
-                    {config?.showLogoInTopBar !== false && (
-                        <Link to="/" className="flex items-center shrink-0">
-                            <Avatar className="h-6 w-6 p-0.5 rounded-md">
+                    <Link to="/" className="hidden md:flex items-center shrink-0">
+                        <Avatar className="h-6 w-18 p-0.5 rounded-md">
+                            <AvatarImage src={fullLogoSrc} alt="logo" />
+                            <AvatarFallback className="rounded-md text-xs">Adiflix</AvatarFallback>
+                        </Avatar>
+                    </Link>
+                    
+                    {currentPath === '/' && (
+                        <Link to="/" className="flex md:hidden items-center shrink-0">
+                            <Avatar className="h-9 w-9 p-0.5 rounded-md">
                                 <AvatarImage src={logoSrc} alt="logo" />
-                                <AvatarFallback className="rounded-md text-xs">PE</AvatarFallback>
+                                <AvatarFallback className="rounded-md text-xs">AF</AvatarFallback>
                             </Avatar>
                         </Link>
                     )}
 
                     {/* Desktop nav */}
                     <nav className="hidden md:flex items-center gap-0.5">
-                        <Button asChild variant="ghost" size="sm">
+                        <Button asChild variant={getButtonVariant('/')} className='rounded-full' size="sm">
                             <Link to="/">
                                 <House className="h-4 w-4" />
                                 {t('home')}
                             </Link>
                         </Button>
 
-                        <Button asChild variant="ghost" size="sm">
-                            <Link to="/library">
-                                <Library className="h-4 w-4" />
-                                {t('library')}
-                            </Link>
-                        </Button>
+                        {/* loop thru libraries and create buttons for each library */}
+                        {libraries.map((library) => {
+                            return (
+                                <Button asChild variant={getButtonVariant('/library', library.Id)} className='rounded-full' size="sm" key={library.Id}>
+                                    <Link to={`/library?library=${library.Id}`}>
+                                        <JellyfinLibraryIcon libraryType={library.CollectionType} />
+                                        {library.Name}
+                                    </Link>
+                                </Button>
+                            );
+                        })}
 
-                        {hasMusicLibrary && (
-                            <Button asChild variant="ghost" size="sm">
-                                <Link to="/music">
-                                    <Music className="h-4 w-4" />
-                                    {t('music')}
-                                </Link>
-                            </Button>
-                        )}
-
-                        {hasLiveTvLibrary && (
-                            <Button asChild variant="ghost" size="sm">
-                                <Link to="/live">
-                                    <Tv className="h-4 w-4" />
-                                    {t('live')}
-                                </Link>
-                            </Button>
-                        )}
-
-                        <Button asChild variant="ghost" size="sm">
+                        <Button asChild variant={getButtonVariant('/search')} className='rounded-full' size="sm">
                             <Link to="/search">
                                 <Search className="h-4 w-4" />
                                 {t('search')}
@@ -884,13 +903,13 @@ const TopBar = ({ overlay = false }: { overlay?: boolean }) => {
 
                         {config?.streamystatsUrl && config?.showStreamystatsButton && (
                             <Button
-                                variant="ghost"
+                                variant={getButtonVariant('/streamystats')}
                                 size="sm"
                                 onClick={() =>
                                     config.streamystatsUrl &&
                                     openExternalUrl(config.streamystatsUrl)
                                 }
-                                className="cursor-pointer"
+                                className="cursor-pointer rounded-full"
                             >
                                 <ChartLine className="h-4 w-4" />
                                 Streamystats
@@ -903,7 +922,7 @@ const TopBar = ({ overlay = false }: { overlay?: boolean }) => {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => openExternalUrl(link.url)}
-                                className="cursor-pointer"
+                                className="cursor-pointer rounded-full"
                             >
                                 <DynamicIcon
                                     name={(link.icon || 'link-2') as IconName}
@@ -916,35 +935,22 @@ const TopBar = ({ overlay = false }: { overlay?: boolean }) => {
 
                     {/* Mobile nav */}
                     <nav className="flex md:hidden items-center gap-0.5">
-                        <Button asChild variant="ghost" size="icon" className="h-8 w-8">
+                        <Button asChild variant={getButtonVariant('/')} size="icon" className="h-8 w-8 rounded-full">
                             <Link to="/">
                                 <House className="h-4 w-4" />
                             </Link>
                         </Button>
 
-                        <Button asChild variant="ghost" size="icon" className="h-8 w-8">
-                            <Link to="/library">
-                                <Library className="h-4 w-4" />
-                            </Link>
-                        </Button>
-
-                        {hasMusicLibrary && (
-                            <Button asChild variant="ghost" size="icon" className="h-8 w-8">
-                                <Link to="/music">
-                                    <Music className="h-4 w-4" />
+                        {/* loop thru libraries and create buttons for each library */}
+                        {libraries.map((library) => (
+                            <Button asChild variant={getButtonVariant('/library', library.Id)} size="sm" key={library.Id} className="rounded-full">
+                                <Link to={`/library?library=${library.Id}`}>
+                                    <JellyfinLibraryIcon libraryType={library.CollectionType} />
                                 </Link>
                             </Button>
-                        )}
+                        ))}
 
-                        {hasLiveTvLibrary && (
-                            <Button asChild variant="ghost" size="icon" className="h-8 w-8">
-                                <Link to="/live">
-                                    <Tv className="h-4 w-4" />
-                                </Link>
-                            </Button>
-                        )}
-
-                        <Button asChild variant="ghost" size="icon" className="h-8 w-8">
+                        <Button asChild variant={getButtonVariant('/search')} size="icon" className="h-8 w-8 rounded-full">
                             <Link to="/search">
                                 <Search className="h-4 w-4" />
                             </Link>
@@ -956,6 +962,7 @@ const TopBar = ({ overlay = false }: { overlay?: boolean }) => {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => openExternalUrl(link.url)}
+                                className="rounded-full"
                             >
                                 <DynamicIcon
                                     name={(link.icon || 'link-2') as IconName}
