@@ -50,6 +50,7 @@ export * from './hooks/useAdjacentItems';
 export * from './hooks/useAlbumTracks';
 export * from './hooks/useArtistItems';
 export * from './hooks/useBoxSetItems';
+export * from './hooks/useChangePassword';
 export * from './hooks/useCloseLiveStream';
 export * from './hooks/useConfig';
 export * from './hooks/useCurrentSessionId';
