@@ -10,12 +10,12 @@ COPY packages/core/package.json packages/core/package.json
 COPY packages/tv-frontend/package.json packages/tv-frontend/package.json
 COPY packages/tv-platform/package.json packages/tv-platform/package.json
 RUN npm install -g pnpm \
-    && pnpm install --frozen-lockfile --filter pelagica...
+    && pnpm install --frozen-lockfile --filter adiflix...
 
 COPY packages/core packages/core
 COPY frontend frontend
 ARG BASE_PATH=
-RUN BASE_PATH=$BASE_PATH pnpm --filter pelagica run build
+RUN BASE_PATH=$BASE_PATH pnpm --filter adiflix run build
 
 
 # Stage 2: Build backend
