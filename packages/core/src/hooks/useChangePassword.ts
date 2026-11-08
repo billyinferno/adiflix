@@ -1,36 +1,28 @@
-import { getApi } from '../api/getApi';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getUserApi } from '@jellyfin/sdk/lib/utils/api/user-api';
+import { getApi } from '../api/getApi';
 
-export interface ChangePasswordParams {
+interface ChangePasswordInput {
     userId: string;
-    currentPassword?: string;
+    currentPassword: string;
     newPassword: string;
 }
 
 export function useChangePassword() {
     const queryClient = useQueryClient();
-    
+
     return useMutation({
-        mutationFn: async (input: ChangePasswordParams) => {
+        mutationFn: async ({ userId, currentPassword, newPassword }: ChangePasswordInput) => {
             const api = getApi();
-            const userApi = getUserApi(api);
-            
-            const userId = input.userId;
-            if (!userId) {
-                throw new Error('User ID is missing');
-            }
-            
-            await userApi.updateUserPassword({
+            await getUserApi(api).updateUserPassword({
                 userId,
                 updateUserPassword: {
-                    CurrentPw: input.currentPassword || '',
-                    NewPw: input.newPassword,
+                    CurrentPw: currentPassword,
+                    NewPw: newPassword,
                 },
             });
         },
         onSuccess: () => {
-            // Invalidate current user query cache so the app syncs updated user data
             queryClient.invalidateQueries({ queryKey: ['currentUser'] });
         },
     });
