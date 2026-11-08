@@ -23,7 +23,11 @@ export function useSectionItems(
             const filters: ItemFilter[] = [];
             if (config?.isInKefinTweaksWatchlist) filters.push(ItemFilter.Likes);
             if (config?.isUnplayed) filters.push(ItemFilter.IsUnplayed);
-            if (params.filters) filters.push(params.filters as ItemFilter);
+            if (params.filters) {
+                params.filters?.forEach((filter) => {
+                    filters.push(filter);
+                });
+            };
 
             const response = await itemsApi.getItems({
                 parentId: config?.libraryId,

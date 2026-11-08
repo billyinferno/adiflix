@@ -13,7 +13,7 @@ const ItemsSectionPage = () => {
     const state = useItemsGridState({
         sortBy: config?.sortBy?.[0],
         sortOrder: config?.sortOrder,
-        filters: config?.filters,
+        filters: config?.filters?.[0],
     });
     console.log('ItemsSectionPage config:', config);
     console.log('ItemsSectionPage state:', state);

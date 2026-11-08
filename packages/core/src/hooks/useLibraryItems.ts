@@ -18,7 +18,7 @@ export type UseLibraryItemsOptions = {
     sortOrder?: SortOrder;
     includeItemTypes?: BaseItemKind[];
     recursive?: boolean;
-    filters?: ItemFilter;
+    filters?: ItemFilter[];
 };
 
 export interface LibraryItemsResponse {
@@ -56,7 +56,7 @@ export function useLibraryItems(
                 locationTypes: ['FileSystem'],
                 fields: ['PrimaryImageAspectRatio'],
                 userId: getUserId() || undefined,
-                filters: options?.filters ? [options.filters] : undefined,
+                filters: options?.filters ?? [],
             });
             return {
                 items: response.data.Items || [],

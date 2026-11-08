@@ -14,6 +14,7 @@ import {
     EyeClosed,
     Eye,
     Play,
+    Heart,
 } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -192,7 +193,7 @@ const ItemsGridPage = ({
                                 <SelectValue placeholder="Filter" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="Undefined">
+                                <SelectItem value="undefined">
                                     <Funnel />
                                     No filter
                                 </SelectItem>
@@ -207,6 +208,10 @@ const ItemsGridPage = ({
                                 <SelectItem value="IsResumable">
                                     <Play />
                                     Resumable
+                                </SelectItem>
+                                <SelectItem value="IsFavorite">
+                                    <Heart />
+                                    Favorite
                                 </SelectItem>
                             </SelectContent>
                         </Select>

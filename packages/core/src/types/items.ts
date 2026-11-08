@@ -1,9 +1,9 @@
-import type { BaseItemDto, ItemSortBy, SortOrder } from '@jellyfin/sdk/lib/generated-client/models';
+import type { BaseItemDto, ItemFilter, ItemSortBy, SortOrder } from '@jellyfin/sdk/lib/generated-client/models';
 
 export interface ItemsQueryParams {
     sortBy: ItemSortBy[];
     sortOrder: SortOrder[];
-    filters?: string;
+    filters?: ItemFilter[];
     limit: number;
     startIndex: number;
 }

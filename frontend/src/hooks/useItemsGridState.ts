@@ -24,18 +24,18 @@ export interface ItemsGridState {
     page: number;
     sortBy: ItemSortBy;
     sortOrder: SortOrder;
-    filters?: string;
+    filters: string;
     pageSize: number;
     setPage: (page: number) => void;
     setSortBy: (sortBy: ItemSortBy) => void;
     setSortOrder: (sortOrder: SortOrder) => void;
-    setFilters: (filters: string | undefined) => void;
+    setFilters: (filters: ItemFilter) => void;
 }
 
 export function useItemsGridState(defaults?: {
     sortBy?: ItemSortBy;
     sortOrder?: SortOrder;
-    filters?: string;
+    filters?: ItemFilter;
 }): ItemsGridState {
     const [searchParams, setSearchParams] = useSearchParams();
     const pageParam = parseInt(searchParams.get('page') ?? '0', 10);
@@ -43,11 +43,11 @@ export function useItemsGridState(defaults?: {
         (searchParams.get('sortBy') as ItemSortBy) || defaults?.sortBy || DEFAULT_SORT_BY;
     const sortOrderParam =
         (searchParams.get('sortOrder') as SortOrder) || defaults?.sortOrder || DEFAULT_SORT_ORDER;
-    const filtersParam = searchParams.get('filters') || undefined;
+    const filtersParam = searchParams.get('filters') as ItemFilter || 'undefined';
     const [page, setPageState] = useState<number>(Number.isNaN(pageParam) ? 0 : pageParam);
     const [sortBy, setSortByState] = useState<ItemSortBy>(sortByParam);
     const [sortOrder, setSortOrderState] = useState<SortOrder>(sortOrderParam);
-    const [filters, setFiltersState] = useState<string | undefined>(filtersParam);
+    const [filters, setFiltersState] = useState<ItemFilter>(filtersParam);
     const [pageSize, setPageSize] = useState(
         () => getColumnCount(typeof window !== 'undefined' ? window.innerWidth : 640) * ITEM_ROWS
     );
@@ -63,7 +63,7 @@ export function useItemsGridState(defaults?: {
             next.set('page', String(nextPage));
             next.set('sortBy', nextSortBy);
             next.set('sortOrder', nextSortOrder);
-            if (nextFilters === undefined || nextFilters === DEFAULT_FILTERS) {
+            if (nextFilters === undefined || nextFilters as string === DEFAULT_FILTERS) {
                 next.delete('filters');
             } else {
                 next.set('filters', nextFilters);
@@ -92,7 +92,7 @@ export function useItemsGridState(defaults?: {
         params: {
             sortBy: [sortBy],
             sortOrder: [sortOrder],
-            filters: (filters === DEFAULT_FILTERS ? undefined : filters as ItemFilter),
+            filters: [filters],
             limit: pageSize,
             startIndex: page * pageSize,
         },

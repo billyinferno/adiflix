@@ -28,6 +28,7 @@ import {
     EyeOff,
     FolderOpen,
     Funnel,
+    Heart,
     Play,
     Star,
 } from 'lucide-react';
@@ -118,7 +119,7 @@ const LibraryContent = ({
     page: number;
     collectionType: CollectionType;
     onPageChange: (p: number) => void;
-    filters?: ItemFilter;
+    filters: ItemFilter;
 }) => {
     const { t } = useTranslation(['library', 'common']);
     const [pageSize, setPageSize] = useState(
@@ -143,7 +144,7 @@ const LibraryContent = ({
         includeItemTypes: COLLECTION_ITEM_TYPES[collectionType],
         sortBy: [sortBy],
         sortOrder,
-        filters: (filters as string) !== 'Undefined' ? filters : undefined,
+        filters: (filters as string) !== 'Undefined' ? [filters] : [],
     });
 
     const posterUrls = useMemo(() => {
@@ -393,7 +394,7 @@ const LibraryPage = () => {
                                 <SelectValue placeholder="Filters" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="Undefined">
+                                <SelectItem value="undefined">
                                     <Funnel />
                                     None
                                 </SelectItem>
@@ -408,6 +409,10 @@ const LibraryPage = () => {
                                 <SelectItem value="IsResumable">
                                     <Play />
                                     Resumable
+                                </SelectItem>
+                                <SelectItem value="IsFavorite">
+                                    <Heart />
+                                    Favorite
                                 </SelectItem>
                             </SelectContent>
                         </Select>

@@ -1,4 +1,4 @@
-import type { BaseItemKind, ItemSortBy } from '@jellyfin/sdk/lib/generated-client/models';
+import type { BaseItemKind, ItemFilter, ItemSortBy } from '@jellyfin/sdk/lib/generated-client/models';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { RecommendationTypeFilter } from './useRecommendedItems';
 import { getServerUrl } from '../utils/localstorageCredentials';
@@ -34,7 +34,7 @@ export interface SectionItemsConfig {
     /** Whether to only include unplayed items */
     isUnplayed?: boolean;
     /** Item filters */
-    filters?: string;
+    filters?: ItemFilter[];
 }
 
 export const MEDIABAR_SIZES = ['small', 'medium', 'large', 'xlarge'] as const;

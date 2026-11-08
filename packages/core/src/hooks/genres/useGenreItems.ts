@@ -8,7 +8,7 @@ interface GenreItemsOptions {
     sortOrder?: SortOrder[];
     limit?: number;
     startIndex?: number;
-    filters?: string;
+    filters?: ItemFilter[];
 }
 
 interface GenreItemsResponse {
@@ -32,7 +32,7 @@ export function useGenreItems(genreId: string, options?: GenreItemsOptions) {
                 sortOrder: options?.sortOrder ?? ['Descending'],
                 limit: options?.limit ?? 50,
                 startIndex: options?.startIndex ?? 0,
-                filters: options?.filters ? [options.filters as ItemFilter] : undefined,
+                filters: options?.filters ?? [],
             });
 
             return {

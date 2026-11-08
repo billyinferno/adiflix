@@ -8,7 +8,7 @@ interface StudioItemsOptions {
     sortOrder?: SortOrder[];
     limit?: number;
     startIndex?: number;
-    filters?: string;
+    filters?: ItemFilter[];
 }
 
 interface StudioItemsResponse {
@@ -32,7 +32,7 @@ export function useStudioItems(studioId: string, options?: StudioItemsOptions) {
                 sortOrder: options?.sortOrder ?? ['Descending'],
                 limit: options?.limit ?? 50,
                 startIndex: options?.startIndex ?? 0,
-                filters: options?.filters ? [options.filters as ItemFilter] : undefined,
+                filters: options?.filters ?? [],
             });
 
             return {
