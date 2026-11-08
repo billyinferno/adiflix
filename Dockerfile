@@ -15,7 +15,10 @@ RUN npm install -g pnpm \
 COPY packages/core packages/core
 COPY frontend frontend
 ARG BASE_PATH=
-RUN BASE_PATH=$BASE_PATH pnpm --filter adiflix run build
+
+# Declare app version in stage-1
+ARG APP_VERSION
+RUN VITE_APP_VERSION=$APP_VERSION BASE_PATH=$BASE_PATH pnpm --filter adiflix run build
 
 
 # Stage 2: Build backend
@@ -39,7 +42,6 @@ RUN CGO_ENABLED=0 \
 # Stage 3: Final image
 FROM nginx:alpine
 
-ARG APP_VERSION
 ARG COLLECTOR_PING_TOKEN
 
 # runtime essentials

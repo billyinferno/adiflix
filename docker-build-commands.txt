@@ -1,3 +1,4 @@
 docker buildx build --push \
+  --build-arg APP_VERSION=4.0.14 \
   --platform linux/amd64,linux/arm64 \
-  -t kartoffelchipss/pelagica:latest .
+  -t adimartha/adiflix:latest .
