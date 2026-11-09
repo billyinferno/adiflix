@@ -29,6 +29,7 @@ import {
     Telescope,
     TriangleAlert,
     X,
+    Info,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -103,6 +104,7 @@ import {
 } from '../utils/desktopApp';
 import { ExternalAnchor } from './ExternalAnchor';
 import JellyfinLibraryIcon from '@/components/JellyfinLibraryIcon';
+import { VERSION } from '../utils/version.ts';
 
 const noDragStyle = { '--wails-draggable': 'no-drag' } as CSSProperties;
 
@@ -681,6 +683,11 @@ const UserMenu = () => {
                         </>
                     )}
 
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>
+                        <Info />
+                        Adiflix {VERSION}
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                         onClick={() => {
