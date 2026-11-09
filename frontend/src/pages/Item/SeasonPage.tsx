@@ -2,7 +2,7 @@ import type { AppConfig } from '@pelagica/core';
 import type { BaseItemDto } from '@jellyfin/sdk/lib/generated-client/models';
 import BaseMediaPage from './BaseMediaPage';
 import { useTranslation } from 'react-i18next';
-import { getPrimaryImageUrl } from '@pelagica/core';
+import { getPrimaryImageUrl, useEpisodes } from '@pelagica/core';
 import DetailBadges from './DetailBadges';
 import { useState } from 'react';
 import { useSeasons } from '@pelagica/core';
@@ -42,13 +42,17 @@ const SeasonPage = ({ item, config }: SeasonPageProps) => {
     const { data: upcomingEpisodes } = useUpcomingEpisodes(item.Id || '');
     const [isPosterLoaded, setIsPosterLoaded] = useState(false);
     const [failedLogo, setFailedLogo] = useState(false);
+    const { data: firstSeasonEpisodes } = useEpisodes(item.SeriesId || '');
 
     const effectiveSelectedSeason =
         selectedSeason ||
         (seasons && seasons.length > 0
             ? seasons.find((s) => s.IndexNumber === item.IndexNumber)?.Id || seasons[0]?.Id || ''
             : '');
-
+    
+    const existingEpisodeIds = new Set(firstSeasonEpisodes?.map((episode) => episode.Id));
+    const filterUpcomingEpisodes = upcomingEpisodes?.filter((episode) => !existingEpisodeIds.has(episode.Id));
+        
     return (
         <BaseMediaPage
             itemId={item.SeriesId || ''}
@@ -141,12 +145,12 @@ const SeasonPage = ({ item, config }: SeasonPageProps) => {
                     </div>
                 </div>
 
-                {upcomingEpisodes && upcomingEpisodes.length > 0 && (
+                {filterUpcomingEpisodes && filterUpcomingEpisodes.length > 0 && (
                     <div className="flex flex-col gap-4">
                         <h3 className="text-3xl font-bold">{t('upcoming_episodes')}</h3>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
-                            {upcomingEpisodes.map((episode) => (
+                            {filterUpcomingEpisodes.map((episode) => (
                                 <UpcomingEpisodeComponent
                                     key={episode.Id}
                                     episode={episode}

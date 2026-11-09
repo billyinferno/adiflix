@@ -73,6 +73,9 @@ const SeriesPage = ({ item, config }: SeriesPageProps) => {
         firstSeasonEpisodes?.find(
             (ep) => !ep.UserData?.Played || (ep.UserData?.PlaybackPositionTicks ?? 0) > 0
         ) || firstSeasonEpisodes?.[0];
+    
+    const existingEpisodeIds = new Set(firstSeasonEpisodes?.map((episode) => episode.Id));
+    const filterUpcomingEpisodes = upcomingEpisodes?.filter((episode) => !existingEpisodeIds.has(episode.Id));
 
     return (
         <BaseMediaPage
@@ -162,11 +165,11 @@ const SeriesPage = ({ item, config }: SeriesPageProps) => {
                     </div>
                 </div>
 
-                {upcomingEpisodes && upcomingEpisodes.length > 0 && (
+                {filterUpcomingEpisodes && filterUpcomingEpisodes.length > 0 && (
                     <div className="flex flex-col gap-4">
                         <h3 className="text-3xl font-bold">{t('upcoming_episodes')}</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
-                            {upcomingEpisodes.map((episode) => (
+                            {filterUpcomingEpisodes.map((episode) => (
                                 <UpcomingEpisodeComponent
                                     key={episode.Id}
                                     episode={episode}
