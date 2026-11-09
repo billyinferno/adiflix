@@ -242,7 +242,7 @@ const LibraryPage = () => {
 
     const sortBy = (searchParams.get('sortBy') as ItemSortBy) || 'DateCreated';
     const sortOrder = (searchParams.get('sortOrder') as SortOrder) || 'Descending';
-    const filters = (searchParams.get('filters') as ItemFilter) || 'Undefined';
+    const filters = (searchParams.get('filters') as ItemFilter) || 'undefined';
     const page = Number(searchParams.get('page') ?? '0') || 0;
 
     const libraryIdFromUrl = searchParams.get('library') || '';
