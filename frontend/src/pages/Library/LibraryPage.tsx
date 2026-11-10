@@ -315,29 +315,6 @@ const LibraryPage = () => {
             <Tabs value={activeLibraryId} onValueChange={handleLibraryChange} className="w-full">
                 <div className="flex flex-col sm:items-center sm:justify-between sm:flex-row gap-2">
                     <div className="max-w-full overflow-auto hidden sm:flex">{/* just to fill the space */}</div>
-                    {/* <TabsList className="max-w-full overflow-auto hidden sm:flex">
-                        {libraryItems?.map((library) => (
-                            <TabsTrigger key={library.Id} value={library.Id ?? ''}>
-                                <JellyfinLibraryIcon libraryType={library.CollectionType} />
-                                {library.Name}
-                            </TabsTrigger>
-                        ))}
-                    </TabsList> */}
-
-                    {/* <Select onValueChange={handleLibraryChange} value={activeLibraryId}>
-                        <SelectTrigger size="sm" className="w-full sm:hidden">
-                            <SelectValue placeholder={t('select_library')} />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {libraryItems?.map((library) => (
-                                <SelectItem key={library.Id} value={library.Id ?? ''}>
-                                    <JellyfinLibraryIcon libraryType={library.CollectionType} />
-                                    {library.Name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select> */}
-
                     <ButtonGroup>
                         <Select onValueChange={handleSortByChange} value={sortBy}>
                             <SelectTrigger size="sm">
