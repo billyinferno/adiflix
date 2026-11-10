@@ -27,6 +27,7 @@ import SourcePickerButton from '@/components/SourcePickerButton';
 import { Link } from 'react-router';
 import { Skeleton } from '@/components/ui/skeleton';
 import Overview from './Overview';
+import WatchedStateBadge from '@/components/WatchedStateBadge';
 
 interface EpisodePageProps {
     item: BaseItemDto;
@@ -118,6 +119,9 @@ const EpisodePage = ({ item, config }: EpisodePageProps) => {
                                     />
                                 </div>
                             )}
+                            <div className="absolute top-1 left-10">
+                                <WatchedStateBadge item={item} show={true} />
+                            </div>
                         </div>
                     </div>
 

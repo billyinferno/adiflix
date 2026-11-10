@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { buildPlayerUrl } from '@/utils/playerUrl';
 import GeneralItemContextMenu from '../../components/GeneraItemContextMenu';
+import WatchedStateBadge from '@/components/WatchedStateBadge';
 
 const EpisodeComponent = memo(
     ({
@@ -92,6 +93,9 @@ const EpisodeComponent = memo(
                                     >
                                         <Play className="w-6 h-6 text-white fill-white" />
                                     </div>
+                                </div>
+                                <div className="absolute top-1 left-10">
+                                    <WatchedStateBadge item={episode} show={true} />
                                 </div>
                                 {episode.RunTimeTicks && (
                                     <Badge className="absolute top-2 right-2 bg-black/70 text-white">

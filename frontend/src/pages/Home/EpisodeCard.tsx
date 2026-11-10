@@ -11,6 +11,7 @@ import { Dot, ImageOff, Play } from 'lucide-react';
 import { getContinueWatchingImageUrls } from '@pelagica/core';
 import type { BaseItemDto } from '@jellyfin/sdk/lib/generated-client/models';
 import GeneralItemContextMenu from '../../components/GeneraItemContextMenu';
+import WatchedStateBadge from '@/components/WatchedStateBadge';
 
 interface EpisodeCardProps {
     item: BaseItemDto;
@@ -63,6 +64,9 @@ export function EpisodeCard({ item, titleLine, detailLine, useSeriesImage }: Epi
                             onError={handleImageError}
                         />
                     )}
+                    <div className="absolute top-1 left-10">
+                        <WatchedStateBadge item={item} show={true} />
+                    </div>
                     {progress > 0 && (
                         <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-700">
                             <div
