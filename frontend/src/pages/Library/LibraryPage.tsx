@@ -242,11 +242,6 @@ const LibraryPage = () => {
     const { data: libraries } = useUserViews();
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const sortBy = (searchParams.get('sortBy') as ItemSortBy) || 'DateCreated';
-    const sortOrder = (searchParams.get('sortOrder') as SortOrder) || 'Descending';
-    const filters = (searchParams.get('filters') as ItemFilter) || 'undefined';
-    const page = Number(searchParams.get('page') ?? '0') || 0;
-
     const libraryIdFromUrl = searchParams.get('library') || '';
 
     const libraryItems = useMemo(() => {
@@ -268,6 +263,11 @@ const LibraryPage = () => {
         const library = libraryItems.find((lib) => lib.Id === activeLibraryId);
         return library?.CollectionType ?? '';
     }
+
+    const sortBy = (searchParams.get('sortBy') as ItemSortBy) || (currentLibraryType() === 'tvshows' ? 'DateLastContentAdded' : 'DateCreated');
+    const sortOrder = (searchParams.get('sortOrder') as SortOrder) || 'Descending';
+    const filters = (searchParams.get('filters') as ItemFilter) || 'undefined';
+    const page = Number(searchParams.get('page') ?? '0') || 0;
 
     const updateParams = (updates: Record<string, string>) => {
         const next = new URLSearchParams(searchParams);
