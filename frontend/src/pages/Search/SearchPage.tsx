@@ -16,7 +16,6 @@ import {
     Clapperboard,
     Film,
     LayoutGrid,
-    Music,
     SearchIcon,
     TriangleAlert,
     Tv,
@@ -25,7 +24,6 @@ import {
 } from 'lucide-react';
 import { ButtonGroup } from '@/components/ui/button-group';
 import MovieTvGrid from './MovieTvGrid';
-import MusicGrid from './MusicGrid';
 import PeopleGrid from './PeopleGrid';
 import EpisodesGrid from './EpisodesGrid';
 import { Button } from '@/components/ui/button';
@@ -51,7 +49,6 @@ const ITEM_TYPE_GROUPS = {
     episodes: ['Episode'] as BaseItemKind[],
     movies: ['Movie'] as BaseItemKind[],
     tv: ['Series'] as BaseItemKind[],
-    music: ['MusicAlbum'] as BaseItemKind[],
     people: ['Person'] as BaseItemKind[],
 } as const;
 
@@ -74,15 +71,14 @@ const LoadingSkeleton = memo(() => (
     </div>
 ));
 
-type SearchTypeFilter = 'all' | 'movies-tv' | 'movies' | 'tv' | 'people' | 'music';
-const ALL_TYPE_FILTERS: SearchTypeFilter[] = ['all', 'movies-tv', 'movies', 'tv', 'people', 'music'];
+type SearchTypeFilter = 'all' | 'movies-tv' | 'movies' | 'tv' | 'people';
+const ALL_TYPE_FILTERS: SearchTypeFilter[] = ['all', 'movies-tv', 'movies', 'tv', 'people'];
 const ITEM_TYPE_FILTER_MAP: Record<SearchTypeFilter, BaseItemKind[] | undefined> = {
-    all: ['MusicAlbum', 'Movie', 'Series', 'Episode', 'Person'],
+    all: ['Movie', 'Series', 'Episode', 'Person'],
     'movies-tv': ['Movie', 'Series'],
     'movies': ['Movie'],
     'tv': ['Series'],
     'people': ['Person'],
-    music: ['MusicAlbum'],
 };
 const ITEM_TYPE_FILTER_ICONS: Record<SearchTypeFilter, JSX.Element> = {
     all: <LayoutGrid />,
@@ -90,7 +86,6 @@ const ITEM_TYPE_FILTER_ICONS: Record<SearchTypeFilter, JSX.Element> = {
     movies: <Film />,
     tv: <Tv />,
     people: <User />,
-    music: <Music />,
 };
 
 const SearchPage = () => {
@@ -111,7 +106,7 @@ const SearchPage = () => {
 
     const { config } = useConfig();
     const { data: isSeerrLoggedIn } = useSeerrLoginStatus();
-    const showSeerrResults = !!config?.seerrUrl && isSeerrLoggedIn && typeFilter !== 'music';
+    const showSeerrResults = !!config?.seerrUrl && isSeerrLoggedIn;
     const { data: seerrResults, isLoading: isLoadingSeerrResults } = useSeerrSearch(
         showSeerrResults ? debouncedQuery : undefined
     );
@@ -139,8 +134,6 @@ const SearchPage = () => {
             return "TV Shows";
         } else if (type === 'people') {
             return "People";
-        } else if (type === 'music') {
-            return "Music";
         }
         return "typefilter_" + type;
     }
@@ -235,9 +228,7 @@ const SearchPage = () => {
                         ITEM_TYPE_GROUPS[groupKey as keyof typeof ITEM_TYPE_GROUPS];
                     if (
                         typeFilter !== 'all' &&
-                        ((typeFilter === 'music' && groupKey !== 'music') ||
-                            (typeFilter === 'movies-tv' && groupKey === 'music') ||
-                            (typeFilter === 'movies-tv' && groupKey === 'people') ||
+                        ((typeFilter === 'movies-tv' && groupKey === 'people') ||
                             (typeFilter === 'movies-tv' && groupKey === 'episodes') ||
                             (typeFilter === 'movies' && groupKey !== 'movies') ||
                             (typeFilter === 'tv' && groupKey !== 'tv') ||
@@ -256,15 +247,6 @@ const SearchPage = () => {
                             <div key={groupKey} className="mt-4 w-full">
                                 <h2 className="text-2xl font-bold mb-2">{movieTvTitle(groupKey)}</h2>
                                 <MovieTvGrid items={groupResults} />
-                            </div>
-                        );
-                    }
-
-                    if (groupKey === 'music') {
-                        return (
-                            <div key={groupKey} className="mt-4 w-full">
-                                <h2 className="text-2xl font-bold mb-2">{t('group_music')}</h2>
-                                <MusicGrid items={groupResults} />
                             </div>
                         );
                     }
