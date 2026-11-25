@@ -761,7 +761,8 @@ const TopBar = ({ overlay = false }: { overlay?: boolean }) => {
         views?.Items?.filter((lib) =>
             SUPPORTED_LIBRARY_COLLECTION_TYPES.includes(lib.CollectionType!) &&
             lib.CollectionType !== 'music' &&
-            lib.CollectionType !== 'livetv'
+            lib.CollectionType !== 'livetv' &&
+            lib.CollectionType !== 'playlists'
         ) ?? [];
 
     const validLinks = config?.links?.filter((l) => l.url && l.text) ?? [];
